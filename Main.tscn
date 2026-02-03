@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://fj40fk4e7rqu"]
+
+[ext_resource type="PackedScene" uid="uid://de7pxomopokvm" path="res://back.tscn" id="1_r0du0"]
+[ext_resource type="PackedScene" uid="uid://ei5oha0x4wr8" path="res://icons.tscn" id="2_cm0pq"]
+[ext_resource type="PackedScene" uid="uid://c74b8y4dmjrta" path="res://taskbar.tscn" id="3_fos0i"]
+
+[node name="Node2D" type="Node2D" unique_id=2119343778]
+
+[node name="CanvasLayer" parent="." unique_id=1388434976 instance=ExtResource("1_r0du0")]
+scale = Vector2(1.68, 1.68)
+transform = Transform2D(1.68, 0, 0, 1.68, 0, 0)
+
+[node name="CanvasLayer2" parent="." unique_id=1670580542 instance=ExtResource("2_cm0pq")]
+offset = Vector2(10, 80)
+transform = Transform2D(1, 0, 0, 1, 10, 80)
+
+[node name="CanvasLayer3" parent="." unique_id=1686924652 instance=ExtResource("3_fos0i")]
+offset = Vector2(0, -20)
+transform = Transform2D(1, 0, 0, 1, 0, -20)
+
+[node name="WindowsLayer" type="CanvasLayer" parent="." unique_id=4029587]
+layer = 10

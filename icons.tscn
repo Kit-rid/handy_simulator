@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://ei5oha0x4wr8"]
+
+[ext_resource type="Script" uid="uid://f2q1aho13ofc" path="res://desktop_icon.gd" id="2_5lq33"]
+[ext_resource type="PackedScene" uid="uid://bg458iwsy4rr1" path="res://DesktopIcon.tscn" id="2_nkpgu"]
+
+[node name="CanvasLayer" type="CanvasLayer"]
+
+[node name="Icon" type="Node2D" parent="."]
+
+[node name="Control" parent="Icon" instance=ExtResource("2_nkpgu")]
+offset_right = 129.0
+offset_bottom = 129.0
+script = ExtResource("2_5lq33")

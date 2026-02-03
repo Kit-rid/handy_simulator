@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://bg458iwsy4rr1"]
+
+[ext_resource type="Texture2D" uid="uid://ctm6ncybh0uxt" path="res://icon.svg" id="1_u1wl0"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_u1wl0"]
+font_size = 28
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 129.0
+offset_bottom = 132.0
+
+[node name="TextureButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_right = 128.0
+offset_bottom = 128.0
+texture_normal = ExtResource("1_u1wl0")
+
+[node name="Label" type="Label" parent="TextureButton"]
+layout_mode = 0
+offset_left = 43.0
+offset_top = 123.0
+offset_right = 91.0
+offset_bottom = 165.0
+text = "Jira"
+label_settings = SubResource("LabelSettings_u1wl0")

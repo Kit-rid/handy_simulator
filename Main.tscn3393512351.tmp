@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://fj40fk4e7rqu"]
+
+[ext_resource type="PackedScene" uid="uid://de7pxomopokvm" path="res://back.tscn" id="1_r0du0"]
+[ext_resource type="PackedScene" uid="uid://ei5oha0x4wr8" path="res://icons.tscn" id="2_cm0pq"]
+[ext_resource type="PackedScene" uid="uid://c74b8y4dmjrta" path="res://taskbar.tscn" id="3_fos0i"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="CanvasLayer" parent="." instance=ExtResource("1_r0du0")]
+
+[node name="CanvasLayer2" parent="." instance=ExtResource("2_cm0pq")]
+offset = Vector2(10, 80)
+scale = Vector2(0.6, 0.6)
+transform = Transform2D(0.6, 0, 0, 0.6, 10, 80)
+
+[node name="CanvasLayer3" parent="." instance=ExtResource("3_fos0i")]
+
+[node name="WindowsLayer" type="CanvasLayer" parent="."]
+layer = 10

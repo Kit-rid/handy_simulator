@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://lhnjlsk4k1vs"]
+
+[ext_resource type="Script" uid="uid://dfggonk4y0olp" path="res://browser.gd" id="1_oog1n"]
+
+[node name="Control" type="Control" unique_id=1493265029]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+offset_right = 800.0
+offset_bottom = 600.0
+script = ExtResource("1_oog1n")
+
+[node name="Panel" type="Panel" parent="." unique_id=346268487]
+layout_mode = 0
+offset_right = 800.0
+offset_bottom = 600.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel" unique_id=2140020371]
+modulate = Color(1, 0.8372149, 0.87376505, 1)
+top_level = true
+layout_mode = 0
+offset_left = 702.0
+offset_top = 8.0
+offset_right = 788.0
+offset_bottom = 48.0
+
+[node name="MinButton" type="Button" parent="Panel/HBoxContainer" unique_id=1260188184]
+layout_mode = 2
+text = "🗕"
+
+[node name="MaxButton" type="Button" parent="Panel/HBoxContainer" unique_id=1816436206]
+layout_mode = 2
+text = "🗖"
+
+[node name="CloseButton" type="Button" parent="Panel/HBoxContainer" unique_id=452964865]
+layout_mode = 2
+text = "❌"
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=518733249]
+layout_mode = 0
+offset_right = 800.0
+offset_bottom = 600.0
+color = Color(1.1551381e-06, 0.6852448, 0.8724588, 1)
