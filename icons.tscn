@@ -3,6 +3,9 @@
 [ext_resource type="PackedScene" uid="uid://bg458iwsy4rr1" path="res://DesktopIcon.tscn" id="2_nkpgu"]
 [ext_resource type="Script" uid="uid://djvnjujene62d" path="res://desktop_icon_new.gd" id="2_o81lv"]
 
+[sub_resource type="LabelSettings" id="LabelSettings_5lq33"]
+font_size = 26
+
 [node name="CanvasLayer2" type="CanvasLayer" unique_id=929163743]
 
 [node name="Icon" type="Node2D" parent="." unique_id=137167170]
@@ -10,13 +13,31 @@
 [node name="JiraIcon" parent="Icon" unique_id=1788007983 instance=ExtResource("2_nkpgu")]
 offset_bottom = 129.0
 script = ExtResource("2_o81lv")
-app_name = "Jira"
+app_name = ""
 app_scene_path = "res://Browser.tscn"
+
+[node name="Label" type="Label" parent="Icon/JiraIcon" unique_id=1701599590]
+layout_mode = 0
+offset_left = 43.0
+offset_top = 124.0
+offset_right = 211.0
+offset_bottom = 169.0
+text = "Jira"
+label_settings = SubResource("LabelSettings_5lq33")
 
 [node name="MessengerIcon" parent="Icon" unique_id=246770077 instance=ExtResource("2_nkpgu")]
 offset_left = 150.0
 offset_right = 279.0
 offset_bottom = 129.0
 script = ExtResource("2_o81lv")
-app_name = "Messenger"
+app_name = ""
 app_scene_path = "res://Messenger.tscn"
+
+[node name="Label" type="Label" parent="Icon/MessengerIcon" unique_id=784578903]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 122.0
+offset_right = 169.0
+offset_bottom = 167.0
+text = "Messenger"
+label_settings = SubResource("LabelSettings_5lq33")

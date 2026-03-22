@@ -24,6 +24,12 @@ offset_top = 8.0
 offset_right = 788.0
 offset_bottom = 48.0
 
+[node name="BackButton" type="Button" parent="Panel/HBoxContainer" unique_id=689164246]
+layout_mode = 2
+
+[node name="ForwardButton" type="Button" parent="Panel/HBoxContainer" unique_id=1769269924]
+layout_mode = 2
+
 [node name="MinButton" type="Button" parent="Panel/HBoxContainer" unique_id=1260188184]
 layout_mode = 2
 text = "🗕"
@@ -35,12 +41,6 @@ text = "🗖"
 [node name="CloseButton" type="Button" parent="Panel/HBoxContainer" unique_id=452964865]
 layout_mode = 2
 text = "❌"
-
-[node name="BackButton" type="Button" parent="Panel/HBoxContainer" unique_id=689164246]
-layout_mode = 2
-
-[node name="ForwardButton" type="Button" parent="Panel/HBoxContainer" unique_id=1769269924]
-layout_mode = 2
 
 [node name="TitleLabel" type="Label" parent="Panel" unique_id=1968909123]
 layout_mode = 0
@@ -61,6 +61,9 @@ anchors_preset = 0
 
 [node name="HomeView" type="VBoxContainer" parent="ColorRect/PageContainer" unique_id=2086055263]
 layout_mode = 0
+offset_top = 19.0
+offset_right = 364.0
+offset_bottom = 108.0
 size_flags_vertical = 3
 
 [node name="CreateTaskBtn" type="Button" parent="ColorRect/PageContainer/HomeView" unique_id=163759125]
@@ -102,14 +105,14 @@ layout_mode = 2
 [node name="AssigneeInputTask" type="LineEdit" parent="ColorRect/PageContainer/CreateTaskView" unique_id=1390257103]
 layout_mode = 2
 
-[node name="SubmitTaskBtn" type="Button" parent="ColorRect/PageContainer/CreateTaskView" unique_id=575258585]
-layout_mode = 2
-
 [node name="DescriptionLabelTask" type="Label" parent="ColorRect/PageContainer/CreateTaskView" unique_id=137262278]
 layout_mode = 2
 
 [node name="DescriptionInputTask" type="TextEdit" parent="ColorRect/PageContainer/CreateTaskView" unique_id=1471132133]
 custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+
+[node name="SubmitTaskBtn" type="Button" parent="ColorRect/PageContainer/CreateTaskView" unique_id=575258585]
 layout_mode = 2
 
 [node name="DetailsView" type="VBoxContainer" parent="ColorRect/PageContainer" unique_id=832519969]
@@ -128,7 +131,6 @@ layout_mode = 2
 autowrap_mode = 2
 
 [node name="Indicator" type="ColorRect" parent="." unique_id=1947082958]
-visible = false
 layout_mode = 0
 anchor_top = 1.0
 anchor_right = 1.0

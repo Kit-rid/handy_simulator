@@ -54,8 +54,8 @@ func _ready() -> void:
 func _setup_app_ui() -> void:
 	title_label.text = "Jira Desktop"
 	title_label.add_theme_color_override("font_color", Color.WHITE)
-	panel.modulate = Color(0.12, 0.12, 0.12, 1.0)
-	content.color = Color(0, 0, 0, 1)
+	panel.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	content.color = Color(0.370, 0.370, 0.370, 1.0)
 
 	$ColorRect/PageContainer/HomeView/CreateTaskBtn.text = "Создать задачу"
 	$ColorRect/PageContainer/HomeView/SprintLabel.text = "Текущий спринт (Sprint 42):"

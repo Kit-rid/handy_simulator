@@ -36,8 +36,8 @@ func _ready() -> void:
 
 	title_label.text = "Messenger"
 	title_label.add_theme_color_override("font_color", Color.WHITE)
-	panel.modulate = Color(0.12, 0.12, 0.12, 1.0)
-	content.color = Color(0, 0, 0, 1)
+	panel.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	content.color = Color(0.370, 0.370, 0.370, 1.0)
 
 	$Panel/HBoxContainer/CloseButton.pressed.connect(queue_free)
 	$Panel/HBoxContainer/MaxButton.pressed.connect(_on_max_button)
