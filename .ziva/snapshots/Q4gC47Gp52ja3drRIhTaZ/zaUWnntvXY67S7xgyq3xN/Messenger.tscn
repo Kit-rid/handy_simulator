@@ -1,0 +1,65 @@
+[gd_scene format=3 uid="uid://foojhv30h220"]
+
+[ext_resource type="Script" path="res://messenger.gd" id="1_0hri5"]
+
+[node name="Messenger" type="Control" unique_id=1434541916]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 900.0
+offset_bottom = 650.0
+script = ExtResource("1_0hri5")
+
+[node name="Panel" type="Panel" parent="." unique_id=745189697]
+layout_mode = 0
+
+[node name="TitleLabel" type="Label" parent="Panel" unique_id=659132167]
+layout_mode = 0
+text = "Teams"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel" unique_id=610766651]
+layout_mode = 0
+
+[node name="MinButton" type="Button" parent="Panel/HBoxContainer" unique_id=698730381]
+layout_mode = 2
+text = "🗕"
+
+[node name="MaxButton" type="Button" parent="Panel/HBoxContainer" unique_id=2146080268]
+layout_mode = 2
+text = "🗖"
+
+[node name="CloseButton" type="Button" parent="Panel/HBoxContainer" unique_id=1763879612]
+layout_mode = 2
+text = "❌"
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1152324320]
+layout_mode = 0
+color = Color(0.13999693, 0.14453125, 0.14453125, 1)
+
+[node name="HSplitContainer" type="HSplitContainer" parent="ColorRect" unique_id=2075374738]
+layout_mode = 0
+offset_right = 1695.0
+offset_bottom = 1078.0
+
+[node name="ChatListScroll" type="ScrollContainer" parent="ColorRect/HSplitContainer" unique_id=350554031]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="ChatListVBox" type="VBoxContainer" parent="ColorRect/HSplitContainer/ChatListScroll" unique_id=1130610262]
+layout_mode = 2
+
+[node name="ChatArea" type="VBoxContainer" parent="ColorRect/HSplitContainer" unique_id=1394646462]
+layout_mode = 2
+
+[node name="ChatTitle" type="Label" parent="ColorRect/HSplitContainer/ChatArea" unique_id=796466232]
+layout_mode = 2
+text = "Select a chat"
+
+[node name="MessagesScroll" type="ScrollContainer" parent="ColorRect/HSplitContainer/ChatArea" unique_id=2072921057]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MessagesVBox" type="VBoxContainer" parent="ColorRect/HSplitContainer/ChatArea/MessagesScroll" unique_id=2098932237]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+alignment = 1

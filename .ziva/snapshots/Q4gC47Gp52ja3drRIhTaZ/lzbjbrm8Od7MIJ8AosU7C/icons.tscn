@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://ei5oha0x4wr8"]
+
+[ext_resource type="Script" uid="uid://f2q1aho13ofc" path="res://desktop_icon_new.gd" id="2_5lq33"]
+[ext_resource type="PackedScene" uid="uid://bg458iwsy4rr1" path="res://DesktopIcon.tscn" id="2_nkpgu"]
+
+[node name="CanvasLayer" type="CanvasLayer"]
+
+[node name="Icon" type="Node2D" parent="."]
+
+[node name="JiraIcon" parent="Icon" instance=ExtResource("2_nkpgu")]
+offset_right = 129.0
+offset_bottom = 129.0
+script = ExtResource("2_5lq33")
+app_name = "Jira"
+app_scene_path = "res://Browser.tscn"
+
+[node name="MessengerIcon" parent="Icon" instance=ExtResource("2_nkpgu")]
+offset_left = 150.0
+offset_right = 279.0
+offset_bottom = 129.0
+script = ExtResource("2_5lq33")
+app_name = "Teams"
+app_scene_path = "res://Messenger.tscn"
+

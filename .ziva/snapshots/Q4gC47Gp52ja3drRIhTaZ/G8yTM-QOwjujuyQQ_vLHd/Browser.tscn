@@ -1,0 +1,109 @@
+[gd_scene format=3 uid="uid://lhnjlsk4k1vs"]
+
+[ext_resource type="Script" uid="uid://dfggonk4y0olp" path="res://browser.gd" id="1_oog1n"]
+
+[node name="Control" type="Control" unique_id=1493265029]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 0
+offset_right = 800.0
+offset_bottom = 600.0
+script = ExtResource("1_oog1n")
+
+[node name="Panel" type="Panel" parent="." unique_id=346268487]
+layout_mode = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel" unique_id=2140020371]
+modulate = Color(1, 0.8372149, 0.87376505, 1)
+layout_mode = 0
+offset_left = 702.0
+offset_top = 8.0
+offset_right = 788.0
+offset_bottom = 48.0
+
+[node name="MinButton" type="Button" parent="Panel/HBoxContainer" unique_id=1260188184]
+layout_mode = 2
+text = "🗕"
+
+[node name="MaxButton" type="Button" parent="Panel/HBoxContainer" unique_id=1816436206]
+layout_mode = 2
+text = "🗖"
+
+[node name="CloseButton" type="Button" parent="Panel/HBoxContainer" unique_id=452964865]
+layout_mode = 2
+text = "❌"
+
+[node name="TitleLabel" type="Label" parent="Panel" unique_id=1968909123]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 8.0
+offset_right = 104.0
+offset_bottom = 31.0
+text = "Jira Browser"
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=518733249]
+layout_mode = 0
+offset_right = 800.0
+offset_bottom = 600.0
+color = Color(0.14117648, 0.14509805, 0.14509805, 1)
+
+[node name="PageContainer" type="Control" parent="ColorRect" unique_id=800068685]
+anchors_preset = 0
+
+[node name="HomeView" type="VBoxContainer" parent="ColorRect/PageContainer" unique_id=2086055263]
+layout_mode = 0
+size_flags_vertical = 3
+
+[node name="CreateTaskBtn" type="Button" parent="ColorRect/PageContainer/HomeView" unique_id=163759125]
+layout_mode = 2
+
+[node name="SprintLabel" type="Label" parent="ColorRect/PageContainer/HomeView" unique_id=900008576]
+layout_mode = 2
+
+[node name="SprintListVBox" type="VBoxContainer" parent="ColorRect/PageContainer/HomeView" unique_id=1678527758]
+layout_mode = 2
+
+[node name="Task1" type="Label" parent="ColorRect/PageContainer/HomeView/SprintListVBox" unique_id=374949218]
+layout_mode = 2
+text = "- Настроить Taskbar (Done)"
+
+[node name="Task2" type="Label" parent="ColorRect/PageContainer/HomeView/SprintListVBox" unique_id=261155489]
+layout_mode = 2
+text = "- Создать навигацию в браузере (In Progress)"
+
+[node name="CreateTaskView" type="VBoxContainer" parent="ColorRect/PageContainer" unique_id=1844073968]
+layout_mode = 0
+size_flags_vertical = 3
+
+[node name="TitleLabelTask" type="Label" parent="ColorRect/PageContainer/CreateTaskView" unique_id=521544818]
+layout_mode = 2
+
+[node name="TitleInputTask" type="LineEdit" parent="ColorRect/PageContainer/CreateTaskView" unique_id=1397329742]
+layout_mode = 2
+
+[node name="PriorityLabelTask" type="Label" parent="ColorRect/PageContainer/CreateTaskView" unique_id=57155177]
+layout_mode = 2
+
+[node name="PriorityInputTask" type="OptionButton" parent="ColorRect/PageContainer/CreateTaskView" unique_id=706236808]
+layout_mode = 2
+
+[node name="AssigneeLabelTask" type="Label" parent="ColorRect/PageContainer/CreateTaskView" unique_id=819222437]
+layout_mode = 2
+
+[node name="AssigneeInputTask" type="LineEdit" parent="ColorRect/PageContainer/CreateTaskView" unique_id=1390257103]
+layout_mode = 2
+
+[node name="SubmitTaskBtn" type="Button" parent="ColorRect/PageContainer/CreateTaskView" unique_id=575258585]
+layout_mode = 2
+
+[node name="Indicator" type="ColorRect" parent="." unique_id=1947082958]
+visible = false
+layout_mode = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -3.0
+color = Color(0, 0.5, 1, 1)

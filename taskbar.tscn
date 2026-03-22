@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://c74b8y4dmjrta"]
 
+[ext_resource type="Script" uid="uid://6kbghdbbxwpn" path="res://taskbar.gd" id="1_8kh7g"]
+
 [node name="CanvasLayer" type="CanvasLayer" unique_id=1188670780]
+script = ExtResource("1_8kh7g")
 
 [node name="Panel" type="Panel" parent="." unique_id=204333075]
 anchors_preset = 7
@@ -13,3 +16,8 @@ offset_top = -50.0
 offset_right = 576.0
 grow_horizontal = 2
 grow_vertical = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel" unique_id=381071438]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0

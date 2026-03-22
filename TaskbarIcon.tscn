@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://clnrao57er63n"]
+
+[ext_resource type="Script" uid="uid://brqqob7jyd12d" path="res://taskbar_icon.gd" id="1_pqm4o"]
+
+[node name="TaskbarIcon" type="Button" unique_id=736327609]
+custom_minimum_size = Vector2(120, 40)
+script = ExtResource("1_pqm4o")
+
+[node name="Indicator" type="ColorRect" parent="." unique_id=1999431864]
+layout_mode = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0

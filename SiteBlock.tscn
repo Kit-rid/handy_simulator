@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://26xmm3j4dpbn"]
+
+[ext_resource type="Script" path="res://site_block.gd" id="1_e65v6"]
+
+[node name="SiteBlock" type="PanelContainer" unique_id=1388456400]
+script = ExtResource("1_e65v6")
+
+[node name="Icon" type="TextureRect" parent="." unique_id=1061407964]
+layout_mode = 2
+
+[node name="ElementName" type="Label" parent="." unique_id=1126273616]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=2127339721]
+layout_mode = 2
+
+[node name="BlockTypeLabel" type="Label" parent="VBoxContainer" unique_id=727279342]
+layout_mode = 2
+text = "BLOCK TYPE"
+
+[node name="LayoutLabel" type="Label" parent="VBoxContainer" unique_id=1107528991]
+layout_mode = 2
+text = "Layout: None"
+
+[node name="ElementsContainer" type="VBoxContainer" parent="VBoxContainer" unique_id=909447041]
+layout_mode = 2

@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://b22wthme2mx8i"]
+
+[sub_resource type="Texture2D" id="Texture2D_rgix4"]
+resource_local_to_scene = false
+resource_name = ""
+
+[node name="SiteElement" type="HBoxContainer" unique_id=86722540]
+
+[node name="Icon" type="TextureRect" parent="." unique_id=1874724323]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = SubResource("Texture2D_rgix4")
+expand_mode = 1
+
+[node name="ElementName" type="Label" parent="." unique_id=1424563810]
+layout_mode = 2
+text = "Element Name"
