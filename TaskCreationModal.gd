@@ -40,9 +40,9 @@ var _employees: Array[Dictionary] = []
 var _id_counter: int = 0
 
 func _ready() -> void:
-	title_label.text = "Create Task"
-	create_button.text = "Create"
-	cancel_button.text = "Cancel"
+	title_label.text = "Создать задачу"
+	create_button.text = "Создать"
+	cancel_button.text = "Отмена"
 
 	_setup_static_options()
 	_load_employees()

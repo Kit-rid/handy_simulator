@@ -130,7 +130,7 @@ func _on_forward_button() -> void:
 		go_to_page(history[history_index], false)
 
 func _on_create_task_pressed() -> void:
-	_open_task_creation_modal()
+	go_to_page("CreateTask")
 
 func _refresh_sprint_list() -> void:
 	for child in sprint_list.get_children():
@@ -166,58 +166,6 @@ func _show_task_details(task_data: Dictionary) -> void:
 	details_description.add_theme_color_override("font_color", Color.WHITE)
 
 	go_to_page("Details")
-
-func _open_task_creation_modal() -> void:
-	for child in get_children():
-		if child is TaskCreationModal:
-			(child as Control).move_to_front()
-			return
-
-	var modal: TaskCreationModal = TASK_CREATION_MODAL_SCENE.instantiate()
-	add_child(modal)
-	modal.task_created.connect(_on_task_created_from_modal)
-	modal.position = (size - modal.size) * 0.5
-	modal.move_to_front()
-
-func _on_task_created_from_modal(task_data: Dictionary) -> void:
-	var assignee_info: Dictionary = task_data.get("assignee", {})
-	var assignee_name: String = String(assignee_info.get("name", "Unassigned"))
-	var task_type: String = String(task_data.get("type", "add_section"))
-	var section_name: String = String(task_data.get("section", "unknown"))
-	var layout_name: String = String(task_data.get("layout", "default"))
-
-	var priority_by_type: Dictionary = {
-		"fix_bug": "High",
-		"refactor": "Medium",
-		"add_section": "Medium",
-		"edit_section": "Low"
-	}
-
-	var task_title: String = "%s: %s" % [_humanize_task_type(task_type), section_name.capitalize()]
-	var task_priority: String = String(priority_by_type.get(task_type, "Medium"))
-	var task_description: String = "Тип: %s\nСекция: %s\nLayout: %s\nИсполнитель: %s" % [
-		_humanize_task_type(task_type),
-		section_name,
-		layout_name,
-		assignee_name
-	]
-
-	var task: Dictionary = {
-		"id": int(task_data.get("id", Time.get_unix_time_from_system())),
-		"title": task_title,
-		"priority": task_priority,
-		"assignee": assignee_name,
-		"description": task_description,
-		"status": "Open"
-	}
-
-	if Global:
-		Global.sprint_tasks.append(task)
-
-	go_to_page("Home")
-
-func _humanize_task_type(task_type: String) -> String:
-	return task_type.replace("_", " ").capitalize()
 
 func _on_submit_task() -> void:
 	var title: String = title_input.text.strip_edges()
