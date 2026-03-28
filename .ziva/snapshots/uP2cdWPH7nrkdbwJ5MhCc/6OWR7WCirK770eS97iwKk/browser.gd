@@ -51,14 +51,13 @@ func _ready() -> void:
 
 	_setup_app_ui()
 	_resize_children_to_window()
-	_ensure_window_border()
 	move_to_front()
 
 func _setup_app_ui() -> void:
 	title_label.text = "Jira Desktop"
 	title_label.add_theme_color_override("font_color", Color.WHITE)
 	panel.modulate = Color(1.0, 1.0, 1.0, 1.0)
-	content.color = Color(0.16, 0.18, 0.22, 1.0)
+	content.color = Color(0.370, 0.370, 0.370, 1.0)
 
 	$ColorRect/PageContainer/HomeView/CreateTaskBtn.text = "Создать задачу"
 	$ColorRect/PageContainer/HomeView/SprintLabel.text = "Текущий спринт (Sprint 42):"
@@ -293,8 +292,6 @@ func _resize_children_to_window() -> void:
 		content.position = Vector2(0, title_height)
 		content.size = Vector2(w, h - title_height)
 
-	_ensure_window_border()
-
 func _on_panel_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
@@ -310,27 +307,3 @@ func _on_panel_gui_input(event: InputEvent) -> void:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		move_to_front()
-
-func _ensure_window_border() -> void:
-	var border: Panel = get_node_or_null("WindowBorder")
-	if border == null:
-		border = Panel.new()
-		border.name = "WindowBorder"
-		border.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		border.focus_mode = Control.FOCUS_NONE
-		border.set_anchors_preset(Control.PRESET_FULL_RECT)
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(0, 0, 0, 0)
-		style.border_color = Color(0.09, 0.09, 0.1, 1.0)
-		style.border_width_left = 1
-		style.border_width_top = 1
-		style.border_width_right = 1
-		style.border_width_bottom = 1
-		border.add_theme_stylebox_override("panel", style)
-		add_child(border)
-
-	border.offset_left = 0
-	border.offset_top = 0
-	border.offset_right = 0
-	border.offset_bottom = 0
-	border.move_to_front()

@@ -85,6 +85,10 @@ text = "- Создать навигацию в браузере (In Progress)"
 
 [node name="CreateTaskView" type="VBoxContainer" parent="ColorRect/PageContainer" unique_id=1844073968]
 layout_mode = 0
+offset_left = 241.0
+offset_top = 46.0
+offset_right = 309.0
+offset_bottom = 340.0
 size_flags_vertical = 3
 
 [node name="TitleLabelTask" type="Label" parent="ColorRect/PageContainer/CreateTaskView" unique_id=521544818]

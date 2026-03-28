@@ -43,7 +43,6 @@ func _ready() -> void:
 	title_label.text = "Создать задачу"
 	create_button.text = "Создать"
 	cancel_button.text = "Отмена"
-	_apply_modal_style()
 
 	_setup_static_options()
 	_load_employees()
@@ -127,15 +126,11 @@ func _on_create_pressed() -> void:
 		"type": task_type_select.get_item_text(task_type_select.selected),
 		"section": section_select.get_item_text(section_select.selected),
 		"layout": layout_select.get_item_text(layout_select.selected),
-		"elements": _build_elements_for_layout(layout_select.get_item_text(layout_select.selected)),
 		"assignee": {
 			"name": String(selected_employee.get("name", "")),
 			"role": String(selected_employee.get("role", ""))
 		}
 	}
-
-	_append_task_to_site_sections(task)
-	_generate_site_from_global_sections()
 
 	task_created.emit(task)
 	queue_free()
@@ -158,46 +153,3 @@ func reset_form() -> void:
 func _generate_task_id() -> int:
 	_id_counter += 1
 	return int(Time.get_unix_time_from_system()) * 1000 + _id_counter
-
-func _build_elements_for_layout(layout_name: String) -> Array[String]:
-	match layout_name:
-		"cards":
-			return ["title", "product_card", "price", "button"]
-		"table":
-			return ["title", "text"]
-		"carousel":
-			return ["title", "image", "button"]
-		"title_button":
-			return ["title", "button"]
-		_:
-			return ["title", "text"]
-
-func _append_task_to_site_sections(task: Dictionary) -> void:
-	if not Global:
-		return
-
-	Global.site_sections.append(task)
-
-func _generate_site_from_global_sections() -> void:
-	if not Global:
-		return
-
-	var generator: SiteGenerator = SiteGenerator.new()
-	generator.generate_from_tasks(Global.site_sections)
-
-func _apply_modal_style() -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.20, 0.21, 0.24, 0.98)
-	style.border_color = Color(0.09, 0.09, 0.1, 1.0)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
-	add_theme_stylebox_override("panel", style)
-
-	if has_node("ColorRect"):
-		$ColorRect.color = Color(0.20, 0.21, 0.24, 1.0)

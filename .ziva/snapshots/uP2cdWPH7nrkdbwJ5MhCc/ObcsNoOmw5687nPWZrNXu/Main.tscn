@@ -3,7 +3,6 @@
 [ext_resource type="PackedScene" uid="uid://de7pxomopokvm" path="res://back.tscn" id="1_r0du0"]
 [ext_resource type="PackedScene" uid="uid://ei5oha0x4wr8" path="res://icons.tscn" id="2_cm0pq"]
 [ext_resource type="PackedScene" uid="uid://c74b8y4dmjrta" path="res://taskbar.tscn" id="3_fos0i"]
-[ext_resource type="Script" uid="uid://bh36bm2uj32nn" path="res://open_site_button.gd" id="4_cm0pq"]
 
 [node name="Node2D" type="Node2D" unique_id=2119343778]
 
@@ -21,10 +20,3 @@ transform = Transform2D(1, 0, 0, 1, 0, -20)
 
 [node name="WindowsLayer" type="CanvasLayer" parent="." unique_id=4029587]
 layer = 10
-
-[node name="OpenSiteButton" type="Button" parent="WindowsLayer" unique_id=182990495]
-offset_left = 930.0
-offset_top = 10.0
-offset_right = 1130.0
-offset_bottom = 54.0
-script = ExtResource("4_cm0pq")

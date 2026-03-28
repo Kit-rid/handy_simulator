@@ -43,7 +43,6 @@ func _ready() -> void:
 	title_label.text = "Создать задачу"
 	create_button.text = "Создать"
 	cancel_button.text = "Отмена"
-	_apply_modal_style()
 
 	_setup_static_options()
 	_load_employees()
@@ -184,20 +183,3 @@ func _generate_site_from_global_sections() -> void:
 
 	var generator: SiteGenerator = SiteGenerator.new()
 	generator.generate_from_tasks(Global.site_sections)
-
-func _apply_modal_style() -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.20, 0.21, 0.24, 0.98)
-	style.border_color = Color(0.09, 0.09, 0.1, 1.0)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
-	add_theme_stylebox_override("panel", style)
-
-	if has_node("ColorRect"):
-		$ColorRect.color = Color(0.20, 0.21, 0.24, 1.0)
