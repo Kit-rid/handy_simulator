@@ -30,19 +30,32 @@ var sprint_tasks: Array[Dictionary] = [
 	}
 ]
 
-var site_sections: Array[Dictionary] = []
-
-func _ready() -> void:
-	_reset_generated_site_files()
+var site_sections: Array[Dictionary] = [
+	{
+		"id": 1,
+		"type": "add_section",
+		"section": "hero",
+		"layout": "title_button_image",
+		"elements": ["title", "button", "image"]
+	},
+	{
+		"id": 2,
+		"type": "add_section",
+		"section": "catalog",
+		"layout": "cards",
+		"elements": ["product_card", "price", "button"]
+	},
+	{
+		"id": 3,
+		"type": "add_section",
+		"section": "footer",
+		"layout": "simple",
+		"elements": ["text", "button"]
+	}
+]
 
 func register_window(window: Control) -> void:
 	window_opened.emit(window)
 
 func unregister_window(window: Control) -> void:
 	window_closed.emit(window)
-
-func _reset_generated_site_files() -> void:
-	var generator := SiteGenerator.new()
-	var clean_html: String = generator.generate_html([])
-	var clean_css: String = generator.generate_css([])
-	generator.save_site(clean_html, clean_css)

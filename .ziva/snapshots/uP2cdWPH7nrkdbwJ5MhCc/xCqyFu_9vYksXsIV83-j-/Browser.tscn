@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://lhnjlsk4k1vs"]
 
-[ext_resource type="Script" uid="uid://ctcli12mx2uvu" path="res://browser_refactored.gd" id="1_oog1n"]
+[ext_resource type="Script" uid="uid://dfggonk4y0olp" path="res://browser.gd" id="1_oog1n"]
 
 [node name="Control" type="Control" unique_id=1493265029]
 clip_contents = true

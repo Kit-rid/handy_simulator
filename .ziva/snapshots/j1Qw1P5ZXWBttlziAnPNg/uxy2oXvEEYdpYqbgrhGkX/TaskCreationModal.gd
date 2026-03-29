@@ -170,13 +170,6 @@ func _bootstrap_site_structure() -> void:
 	# По умолчанию сайт пустой, согласно требованиям.
 	site_structure = _sanitize_site_structure({"sections": []})
 
-	# Основной источник правды: Global.site_sections (задачи конструктора).
-	if Global and _object_has_property(Global, "site_sections"):
-		var sections_variant: Variant = Global.get("site_sections")
-		if sections_variant is Array:
-			site_structure = _sanitize_site_structure(_site_structure_from_global_sections(sections_variant as Array))
-			return
-
 	# Мягкая обратная совместимость: если в Global уже есть site_structure, используем его.
 	if Global and _object_has_property(Global, "site_structure"):
 		var from_global: Variant = Global.get("site_structure")
@@ -228,30 +221,6 @@ func _sanitize_style_dict(style_variant: Variant) -> Dictionary:
 	if style_variant is Dictionary:
 		return (style_variant as Dictionary).duplicate(true)
 	return {}
-
-func _site_structure_from_global_sections(global_sections: Array) -> Dictionary:
-	var sections: Array[Dictionary] = []
-
-	for item_variant: Variant in global_sections:
-		if item_variant is not Dictionary:
-			continue
-
-		var item: Dictionary = item_variant
-		if String(item.get("type", "")) != "add_section":
-			continue
-
-		var section_id: String = String(item.get("section", ""))
-		if section_id.is_empty():
-			continue
-
-		sections.append({
-			"id": section_id,
-			"type": section_id,
-			"style": _sanitize_style_dict(item.get("style", {})),
-			"children": []
-		})
-
-	return {"sections": sections}
 
 func _build_create_section_fields(previous_state: Dictionary) -> void:
 	_add_option_field(

@@ -16,7 +16,6 @@ const SECTION_HEIGHTS: Array[String] = ["50%", "75%", "100%"]
 const ALIGN_OPTIONS: Array[String] = ["left", "center", "right"]
 
 const OBJECT_TYPES: Array[String] = ["text", "button", "image", "card"]
-const ASSIGNEE_OPTIONS: Array[String] = ["Alex", "Mila", "Nikita", "Unassigned"]
 const TEXT_CONTENT_PRESETS: Array[String] = [
 	"Hello",
 	"Welcome",
@@ -72,13 +71,6 @@ const CSS_MAP: Dictionary = {
 
 const PLACEHOLDER_NO_SECTIONS: String = "— нет секций —"
 const PLACEHOLDER_NO_OBJECTS: String = "— нет объектов —"
-
-const WINDOW_BORDER_COLOR: Color = Color(0.09, 0.09, 0.1, 1.0)
-const PANEL_BG_COLOR: Color = Color(0.13, 0.15, 0.18, 0.98)
-const CONTENT_BG_COLOR: Color = Color(0.11, 0.12, 0.15, 1.0)
-const CARD_BG_COLOR: Color = Color(0.16, 0.18, 0.22, 1.0)
-const CARD_HOVER_BG_COLOR: Color = Color(0.19, 0.21, 0.26, 1.0)
-const ACCENT_COLOR: Color = Color(0.2, 0.6, 1.0, 1.0)
 
 @onready var title_label: Label = $VBoxContainer/TitleLabel
 @onready var action_type_select: OptionButton = $VBoxContainer/TaskTypeSelect
@@ -162,20 +154,13 @@ func _create_dynamic_fields_container() -> void:
 	_fields_container = VBoxContainer.new()
 	_fields_container.name = "DynamicFields"
 	_fields_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_fields_container.add_theme_constant_override("separation", 10)
+	_fields_container.add_theme_constant_override("separation", 8)
 	$VBoxContainer.add_child(_fields_container)
 	$VBoxContainer.move_child(_fields_container, create_button.get_index())
 
 func _bootstrap_site_structure() -> void:
 	# По умолчанию сайт пустой, согласно требованиям.
 	site_structure = _sanitize_site_structure({"sections": []})
-
-	# Основной источник правды: Global.site_sections (задачи конструктора).
-	if Global and _object_has_property(Global, "site_sections"):
-		var sections_variant: Variant = Global.get("site_sections")
-		if sections_variant is Array:
-			site_structure = _sanitize_site_structure(_site_structure_from_global_sections(sections_variant as Array))
-			return
 
 	# Мягкая обратная совместимость: если в Global уже есть site_structure, используем его.
 	if Global and _object_has_property(Global, "site_structure"):
@@ -229,37 +214,7 @@ func _sanitize_style_dict(style_variant: Variant) -> Dictionary:
 		return (style_variant as Dictionary).duplicate(true)
 	return {}
 
-func _site_structure_from_global_sections(global_sections: Array) -> Dictionary:
-	var sections: Array[Dictionary] = []
-
-	for item_variant: Variant in global_sections:
-		if item_variant is not Dictionary:
-			continue
-
-		var item: Dictionary = item_variant
-		if String(item.get("type", "")) != "add_section":
-			continue
-
-		var section_id: String = String(item.get("section", ""))
-		if section_id.is_empty():
-			continue
-
-		sections.append({
-			"id": section_id,
-			"type": section_id,
-			"style": _sanitize_style_dict(item.get("style", {})),
-			"children": []
-		})
-
-	return {"sections": sections}
-
 func _build_create_section_fields(previous_state: Dictionary) -> void:
-	_add_option_field(
-		"assignee",
-		"Assignee",
-		ASSIGNEE_OPTIONS,
-		String(previous_state.get("assignee", "Unassigned"))
-	)
 	_add_option_field(
 		"bg_color",
 		"Color",
@@ -282,12 +237,6 @@ func _build_create_section_fields(previous_state: Dictionary) -> void:
 func _build_edit_section_fields(previous_state: Dictionary) -> void:
 	var preferred_section_id: String = String(previous_state.get("section_id", ""))
 	_add_section_select_field("section_id", "Section", preferred_section_id)
-	_add_option_field(
-		"assignee",
-		"Assignee",
-		ASSIGNEE_OPTIONS,
-		String(previous_state.get("assignee", "Unassigned"))
-	)
 
 	_add_option_field(
 		"bg_color",
@@ -311,12 +260,6 @@ func _build_edit_section_fields(previous_state: Dictionary) -> void:
 func _build_create_object_fields(previous_state: Dictionary) -> void:
 	var preferred_section_id: String = String(previous_state.get("section_id", ""))
 	_add_section_select_field("section_id", "Section", preferred_section_id)
-	_add_option_field(
-		"assignee",
-		"Assignee",
-		ASSIGNEE_OPTIONS,
-		String(previous_state.get("assignee", "Unassigned"))
-	)
 
 	var preferred_object_type: String = String(previous_state.get("object_type", "text"))
 	if preferred_object_type.is_empty():
@@ -328,12 +271,6 @@ func _build_create_object_fields(previous_state: Dictionary) -> void:
 func _build_edit_object_fields(previous_state: Dictionary) -> void:
 	var preferred_section_id: String = String(previous_state.get("section_id", ""))
 	_add_section_select_field("section_id", "Section", preferred_section_id)
-	_add_option_field(
-		"assignee",
-		"Assignee",
-		ASSIGNEE_OPTIONS,
-		String(previous_state.get("assignee", "Unassigned"))
-	)
 
 	var selected_section_id: String = _get_selected_value("section_id")
 	var preferred_object_id: String = String(previous_state.get("object_id", ""))
@@ -372,7 +309,7 @@ func _build_object_specific_fields(state: Dictionary, object_type: String) -> vo
 			_add_option_field(
 				"color",
 				"Color",
-				OBJECT_COLOR_OPTIONS,
+				SECTION_COLORS,
 				String(state.get("color", "black"))
 			)
 			_add_option_field(
@@ -391,7 +328,7 @@ func _build_object_specific_fields(state: Dictionary, object_type: String) -> vo
 			_add_option_field(
 				"color",
 				"Color",
-				OBJECT_COLOR_OPTIONS,
+				SECTION_COLORS,
 				String(state.get("color", "blue"))
 			)
 			_add_option_field(
@@ -510,7 +447,7 @@ func _add_readonly_info_field(key: String, label_text: String, value: String) ->
 	var info_label := Label.new()
 	info_label.text = value
 	info_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	info_label.add_theme_color_override("font_color", Color(0.85, 0.88, 0.94, 1.0))
+	info_label.add_theme_color_override("font_color", Color(0.8, 0.84, 0.92, 1.0))
 
 	row.add_child(field_label)
 	row.add_child(info_label)
@@ -529,9 +466,7 @@ func _create_option_row(key: String, label_text: String) -> OptionButton:
 
 	var option := OptionButton.new()
 	option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	option.custom_minimum_size = Vector2(0, 34)
 	option.add_theme_color_override("font_color", Color.WHITE)
-	_style_option_button(option)
 
 	row.add_child(field_label)
 	row.add_child(option)
@@ -609,10 +544,6 @@ func _on_cancel_pressed() -> void:
 func _build_task_data() -> Dictionary:
 	var action: String = _get_selected_action()
 	var task_id: int = _generate_task_id()
-	var assignee_name: String = _get_selected_value("assignee")
-	if assignee_name.is_empty():
-		assignee_name = "Unassigned"
-	var assignee_data: Dictionary = {"name": assignee_name}
 
 	match action:
 		"create_section":
@@ -621,7 +552,6 @@ func _build_task_data() -> Dictionary:
 			return {
 				"id": task_id,
 				"type": "create_section",
-				"assignee": assignee_data,
 				"section_id": new_section_id,
 				"style": section_style,
 				"css_classes": _style_to_css_classes(section_style),
@@ -635,7 +565,6 @@ func _build_task_data() -> Dictionary:
 			return {
 				"id": task_id,
 				"type": "edit_section",
-				"assignee": assignee_data,
 				"section_id": section_id,
 				"style": edit_section_style,
 				"css_classes": _style_to_css_classes(edit_section_style),
@@ -649,7 +578,6 @@ func _build_task_data() -> Dictionary:
 			return {
 				"id": task_id,
 				"type": "create_object",
-				"assignee": assignee_data,
 				"section_id": section_for_object,
 				"object_type": object_type,
 				"content": object_payload.get("content", ""),
@@ -666,7 +594,6 @@ func _build_task_data() -> Dictionary:
 			return {
 				"id": task_id,
 				"type": "edit_object",
-				"assignee": assignee_data,
 				"section_id": section_for_edit_object,
 				"object_id": object_id,
 				"style": edit_payload.get("style", {}),
@@ -742,15 +669,15 @@ func _is_form_valid() -> bool:
 
 	match action:
 		"create_section":
-			return _has_valid_value("assignee") and _has_valid_value("bg_color") and _has_valid_value("height") and _has_valid_value("align")
+			return _has_valid_value("bg_color") and _has_valid_value("height") and _has_valid_value("align")
 		"edit_section":
-			return _has_valid_value("section_id") and _has_valid_value("assignee") and _has_valid_value("bg_color") and _has_valid_value("height") and _has_valid_value("align")
+			return _has_valid_value("section_id") and _has_valid_value("bg_color") and _has_valid_value("height") and _has_valid_value("align")
 		"create_object":
-			if not _has_valid_value("section_id") or not _has_valid_value("assignee") or not _has_valid_value("object_type"):
+			if not _has_valid_value("section_id") or not _has_valid_value("object_type"):
 				return false
 			return _validate_object_fields(_get_selected_value("object_type"))
 		"edit_object":
-			if not _has_valid_value("section_id") or not _has_valid_value("object_id") or not _has_valid_value("assignee"):
+			if not _has_valid_value("section_id") or not _has_valid_value("object_id"):
 				return false
 			return _validate_object_fields(_get_selected_value("object_type"))
 		_:
@@ -800,8 +727,6 @@ func _generate_task_id() -> int:
 
 func _generate_section_id() -> String:
 	var section_count: int = _get_sections_array().size()
-	if Global:
-		section_count = max(section_count, Global.site_sections.size())
 	return "section_%d" % (section_count + 1)
 
 func _style_to_css_classes(style: Dictionary) -> Array[String]:
@@ -895,63 +820,17 @@ func _object_has_property(obj: Object, property_name: String) -> bool:
 
 func _apply_modal_style() -> void:
 	var style := StyleBoxFlat.new()
-	style.bg_color = PANEL_BG_COLOR
-	style.border_color = WINDOW_BORDER_COLOR
+	style.bg_color = Color(0.20, 0.21, 0.24, 0.98)
+	style.border_color = Color(0.09, 0.09, 0.1, 1.0)
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
 	style.border_width_bottom = 1
-	style.corner_radius_top_left = 10
-	style.corner_radius_top_right = 10
-	style.corner_radius_bottom_left = 10
-	style.corner_radius_bottom_right = 10
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_left = 8
+	style.corner_radius_bottom_right = 8
 	add_theme_stylebox_override("panel", style)
 
 	if has_node("ColorRect"):
-		$ColorRect.color = CONTENT_BG_COLOR
-
-	if has_node("VBoxContainer"):
-		var root_box: VBoxContainer = $VBoxContainer
-		root_box.add_theme_constant_override("separation", 10)
-
-	title_label.add_theme_color_override("font_color", Color.WHITE)
-	title_label.add_theme_font_size_override("font_size", 18)
-
-	action_type_select.add_theme_color_override("font_color", Color.WHITE)
-	action_type_select.custom_minimum_size = Vector2(0, 36)
-	_style_option_button(action_type_select)
-
-	create_button.add_theme_color_override("font_color", Color.WHITE)
-	create_button.custom_minimum_size = Vector2(0, 38)
-	create_button.add_theme_stylebox_override("normal", _make_button_style(ACCENT_COLOR, 8))
-	create_button.add_theme_stylebox_override("hover", _make_button_style(Color(0.26, 0.67, 1.0, 1.0), 8))
-	create_button.add_theme_stylebox_override("pressed", _make_button_style(Color(0.17, 0.50, 0.85, 1.0), 8))
-
-	cancel_button.add_theme_color_override("font_color", Color.WHITE)
-	cancel_button.custom_minimum_size = Vector2(0, 38)
-	cancel_button.add_theme_stylebox_override("normal", _make_button_style(CARD_BG_COLOR, 8))
-	cancel_button.add_theme_stylebox_override("hover", _make_button_style(CARD_HOVER_BG_COLOR, 8))
-	cancel_button.add_theme_stylebox_override("pressed", _make_button_style(Color(0.14, 0.16, 0.20, 1.0), 8))
-
-func _style_option_button(option: OptionButton) -> void:
-	option.add_theme_stylebox_override("normal", _make_button_style(Color(0.17, 0.19, 0.23, 1.0), 8))
-	option.add_theme_stylebox_override("hover", _make_button_style(Color(0.21, 0.24, 0.29, 1.0), 8))
-	option.add_theme_stylebox_override("pressed", _make_button_style(Color(0.14, 0.16, 0.20, 1.0), 8))
-
-func _make_button_style(bg_color: Color, corner_radius: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg_color
-	style.border_color = Color(0, 0, 0, 0)
-	style.border_width_left = 0
-	style.border_width_top = 0
-	style.border_width_right = 0
-	style.border_width_bottom = 0
-	style.corner_radius_top_left = corner_radius
-	style.corner_radius_top_right = corner_radius
-	style.corner_radius_bottom_left = corner_radius
-	style.corner_radius_bottom_right = corner_radius
-	style.content_margin_left = 10
-	style.content_margin_right = 10
-	style.content_margin_top = 6
-	style.content_margin_bottom = 6
-	return style
+		$ColorRect.color = Color(0.20, 0.21, 0.24, 1.0)

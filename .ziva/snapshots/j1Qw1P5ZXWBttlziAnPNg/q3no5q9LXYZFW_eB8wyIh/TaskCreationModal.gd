@@ -16,7 +16,6 @@ const SECTION_HEIGHTS: Array[String] = ["50%", "75%", "100%"]
 const ALIGN_OPTIONS: Array[String] = ["left", "center", "right"]
 
 const OBJECT_TYPES: Array[String] = ["text", "button", "image", "card"]
-const ASSIGNEE_OPTIONS: Array[String] = ["Alex", "Mila", "Nikita", "Unassigned"]
 const TEXT_CONTENT_PRESETS: Array[String] = [
 	"Hello",
 	"Welcome",
@@ -170,13 +169,6 @@ func _bootstrap_site_structure() -> void:
 	# По умолчанию сайт пустой, согласно требованиям.
 	site_structure = _sanitize_site_structure({"sections": []})
 
-	# Основной источник правды: Global.site_sections (задачи конструктора).
-	if Global and _object_has_property(Global, "site_sections"):
-		var sections_variant: Variant = Global.get("site_sections")
-		if sections_variant is Array:
-			site_structure = _sanitize_site_structure(_site_structure_from_global_sections(sections_variant as Array))
-			return
-
 	# Мягкая обратная совместимость: если в Global уже есть site_structure, используем его.
 	if Global and _object_has_property(Global, "site_structure"):
 		var from_global: Variant = Global.get("site_structure")
@@ -229,37 +221,7 @@ func _sanitize_style_dict(style_variant: Variant) -> Dictionary:
 		return (style_variant as Dictionary).duplicate(true)
 	return {}
 
-func _site_structure_from_global_sections(global_sections: Array) -> Dictionary:
-	var sections: Array[Dictionary] = []
-
-	for item_variant: Variant in global_sections:
-		if item_variant is not Dictionary:
-			continue
-
-		var item: Dictionary = item_variant
-		if String(item.get("type", "")) != "add_section":
-			continue
-
-		var section_id: String = String(item.get("section", ""))
-		if section_id.is_empty():
-			continue
-
-		sections.append({
-			"id": section_id,
-			"type": section_id,
-			"style": _sanitize_style_dict(item.get("style", {})),
-			"children": []
-		})
-
-	return {"sections": sections}
-
 func _build_create_section_fields(previous_state: Dictionary) -> void:
-	_add_option_field(
-		"assignee",
-		"Assignee",
-		ASSIGNEE_OPTIONS,
-		String(previous_state.get("assignee", "Unassigned"))
-	)
 	_add_option_field(
 		"bg_color",
 		"Color",
@@ -282,12 +244,6 @@ func _build_create_section_fields(previous_state: Dictionary) -> void:
 func _build_edit_section_fields(previous_state: Dictionary) -> void:
 	var preferred_section_id: String = String(previous_state.get("section_id", ""))
 	_add_section_select_field("section_id", "Section", preferred_section_id)
-	_add_option_field(
-		"assignee",
-		"Assignee",
-		ASSIGNEE_OPTIONS,
-		String(previous_state.get("assignee", "Unassigned"))
-	)
 
 	_add_option_field(
 		"bg_color",
@@ -311,12 +267,6 @@ func _build_edit_section_fields(previous_state: Dictionary) -> void:
 func _build_create_object_fields(previous_state: Dictionary) -> void:
 	var preferred_section_id: String = String(previous_state.get("section_id", ""))
 	_add_section_select_field("section_id", "Section", preferred_section_id)
-	_add_option_field(
-		"assignee",
-		"Assignee",
-		ASSIGNEE_OPTIONS,
-		String(previous_state.get("assignee", "Unassigned"))
-	)
 
 	var preferred_object_type: String = String(previous_state.get("object_type", "text"))
 	if preferred_object_type.is_empty():
@@ -328,12 +278,6 @@ func _build_create_object_fields(previous_state: Dictionary) -> void:
 func _build_edit_object_fields(previous_state: Dictionary) -> void:
 	var preferred_section_id: String = String(previous_state.get("section_id", ""))
 	_add_section_select_field("section_id", "Section", preferred_section_id)
-	_add_option_field(
-		"assignee",
-		"Assignee",
-		ASSIGNEE_OPTIONS,
-		String(previous_state.get("assignee", "Unassigned"))
-	)
 
 	var selected_section_id: String = _get_selected_value("section_id")
 	var preferred_object_id: String = String(previous_state.get("object_id", ""))
@@ -609,10 +553,6 @@ func _on_cancel_pressed() -> void:
 func _build_task_data() -> Dictionary:
 	var action: String = _get_selected_action()
 	var task_id: int = _generate_task_id()
-	var assignee_name: String = _get_selected_value("assignee")
-	if assignee_name.is_empty():
-		assignee_name = "Unassigned"
-	var assignee_data: Dictionary = {"name": assignee_name}
 
 	match action:
 		"create_section":
@@ -621,7 +561,6 @@ func _build_task_data() -> Dictionary:
 			return {
 				"id": task_id,
 				"type": "create_section",
-				"assignee": assignee_data,
 				"section_id": new_section_id,
 				"style": section_style,
 				"css_classes": _style_to_css_classes(section_style),
@@ -635,7 +574,6 @@ func _build_task_data() -> Dictionary:
 			return {
 				"id": task_id,
 				"type": "edit_section",
-				"assignee": assignee_data,
 				"section_id": section_id,
 				"style": edit_section_style,
 				"css_classes": _style_to_css_classes(edit_section_style),
@@ -649,7 +587,6 @@ func _build_task_data() -> Dictionary:
 			return {
 				"id": task_id,
 				"type": "create_object",
-				"assignee": assignee_data,
 				"section_id": section_for_object,
 				"object_type": object_type,
 				"content": object_payload.get("content", ""),
@@ -666,7 +603,6 @@ func _build_task_data() -> Dictionary:
 			return {
 				"id": task_id,
 				"type": "edit_object",
-				"assignee": assignee_data,
 				"section_id": section_for_edit_object,
 				"object_id": object_id,
 				"style": edit_payload.get("style", {}),
@@ -742,15 +678,15 @@ func _is_form_valid() -> bool:
 
 	match action:
 		"create_section":
-			return _has_valid_value("assignee") and _has_valid_value("bg_color") and _has_valid_value("height") and _has_valid_value("align")
+			return _has_valid_value("bg_color") and _has_valid_value("height") and _has_valid_value("align")
 		"edit_section":
-			return _has_valid_value("section_id") and _has_valid_value("assignee") and _has_valid_value("bg_color") and _has_valid_value("height") and _has_valid_value("align")
+			return _has_valid_value("section_id") and _has_valid_value("bg_color") and _has_valid_value("height") and _has_valid_value("align")
 		"create_object":
-			if not _has_valid_value("section_id") or not _has_valid_value("assignee") or not _has_valid_value("object_type"):
+			if not _has_valid_value("section_id") or not _has_valid_value("object_type"):
 				return false
 			return _validate_object_fields(_get_selected_value("object_type"))
 		"edit_object":
-			if not _has_valid_value("section_id") or not _has_valid_value("object_id") or not _has_valid_value("assignee"):
+			if not _has_valid_value("section_id") or not _has_valid_value("object_id"):
 				return false
 			return _validate_object_fields(_get_selected_value("object_type"))
 		_:
@@ -800,8 +736,6 @@ func _generate_task_id() -> int:
 
 func _generate_section_id() -> String:
 	var section_count: int = _get_sections_array().size()
-	if Global:
-		section_count = max(section_count, Global.site_sections.size())
 	return "section_%d" % (section_count + 1)
 
 func _style_to_css_classes(style: Dictionary) -> Array[String]:

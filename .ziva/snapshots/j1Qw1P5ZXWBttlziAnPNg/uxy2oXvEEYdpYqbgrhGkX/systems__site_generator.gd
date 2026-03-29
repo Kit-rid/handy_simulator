@@ -36,8 +36,7 @@ func build_site_structure(tasks: Array) -> Array:
 		var section_data: Dictionary = {
 			"type": String(task.get("section", "section")),
 			"layout": String(task.get("layout", "text_block")),
-			"elements": elements,
-			"style": task.get("style", {})
+			"elements": elements
 		}
 		site.append(section_data)
 
@@ -199,7 +198,6 @@ func _render_section_template(template: String, section_data: Dictionary) -> Str
 	rendered = rendered.replace("{{SECTION_TYPE}}", section_type)
 	rendered = rendered.replace("{{LAYOUT}}", layout)
 	rendered = rendered.replace("{{SECTION_CLASS}}", "%s %s" % [section_type, layout])
-	rendered = rendered.replace("{{SECTION_STYLE}}", _section_style_to_inline_css(section_data))
 	rendered = rendered.replace("{{TITLE}}", "%s section" % section_type.capitalize())
 	rendered = rendered.replace("{{BUTTON_TEXT}}", "Learn more")
 	rendered = rendered.replace("{{CONTENT}}", _build_content_markup(section_data))
@@ -257,45 +255,6 @@ func _build_catalog_cards() -> String:
 </div>
 """
 
-func _section_style_to_inline_css(section_data: Dictionary) -> String:
-	var style_variant: Variant = section_data.get("style", {})
-	if style_variant is not Dictionary:
-		return ""
-
-	var style: Dictionary = style_variant
-	var inline_rules: Array[String] = []
-
-	var bg_color_key: String = String(style.get("bg_color", "")).to_lower()
-	match bg_color_key:
-		"white":
-			inline_rules.append("background-color: #ffffff")
-		"blue":
-			inline_rules.append("background-color: #dbeafe")
-		"gray":
-			inline_rules.append("background-color: #f3f4f6")
-		"dark":
-			inline_rules.append("background-color: #111827")
-			inline_rules.append("color: #f9fafb")
-		_:
-			pass
-
-	var align_key: String = String(style.get("align", "")).to_lower()
-	if align_key in ["left", "center", "right"]:
-		inline_rules.append("text-align: %s" % align_key)
-
-	var height_key: String = String(style.get("height", ""))
-	match height_key:
-		"50%":
-			inline_rules.append("min-height: 50vh")
-		"75%":
-			inline_rules.append("min-height: 75vh")
-		"100%":
-			inline_rules.append("min-height: 100vh")
-		_:
-			pass
-
-	return "; ".join(inline_rules)
-
 func _load_text_file(path: String, fallback: String = "") -> String:
 	if not FileAccess.file_exists(path):
 		return fallback
@@ -311,7 +270,7 @@ func _write_text_file(path: String, content: String) -> void:
 
 func _fallback_section_template() -> String:
 	return """
-<section class="section {{SECTION_CLASS}}" style="{{SECTION_STYLE}}">
+<section class="section {{SECTION_CLASS}}">
 	<div class="container">
 		<h2>{{TITLE}}</h2>
 		{{CONTENT}}

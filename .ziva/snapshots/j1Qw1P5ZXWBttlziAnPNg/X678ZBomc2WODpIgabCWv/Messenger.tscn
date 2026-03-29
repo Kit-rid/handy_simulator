@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://foojhv30h220"]
 
-[ext_resource type="Script" uid="uid://hyuo34xnmdey" path="res://messenger_refactored.gd" id="1_0hri5"]
+[ext_resource type="Script" uid="uid://cdn7gyf8uhl7g" path="res://messenger.gd" id="1_0hri5"]
 
 [node name="Messenger" type="Control" unique_id=1434541916]
 layout_mode = 3
