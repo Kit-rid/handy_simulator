@@ -269,17 +269,12 @@ func _refresh_sprint_list() -> void:
 				_add_task_button(task_variant as Dictionary)
 
 func _add_task_button(task_data: Dictionary) -> void:
-	var row := VBoxContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 4)
-
 	var btn := Button.new()
 	var status: String = String(task_data.get("status", "Open"))
 	var title: String = String(task_data.get("title", "Untitled"))
 	var remaining_seconds: int = int(task_data.get("remaining_seconds", 0))
-	var is_pending: bool = bool(task_data.get("pending_publish", false))
 
-	if is_pending and remaining_seconds > 0:
+	if bool(task_data.get("pending_publish", false)) and remaining_seconds > 0:
 		btn.text = "%s   ·   %s   ·   ⏳ %ss" % [title, status, remaining_seconds]
 	else:
 		btn.text = "%s   ·   %s" % [title, status]
@@ -291,21 +286,7 @@ func _add_task_button(task_data: Dictionary) -> void:
 	btn.add_theme_stylebox_override("hover", _make_button_style(CARD_HOVER_BG_COLOR, 8))
 	btn.add_theme_stylebox_override("pressed", _make_button_style(Color(0.14, 0.16, 0.20, 1.0), 8))
 	btn.pressed.connect(func() -> void: _show_task_details(task_data))
-	row.add_child(btn)
-
-	if is_pending:
-		var total_seconds: int = max(1, int(task_data.get("total_seconds", TASK_BUILD_DELAY_SECONDS)))
-		var clamped_remaining: int = clampi(remaining_seconds, 0, total_seconds)
-		var progress := ProgressBar.new()
-		progress.min_value = 0
-		progress.max_value = total_seconds
-		progress.value = total_seconds - clamped_remaining
-		progress.show_percentage = false
-		progress.custom_minimum_size = Vector2(0, 10)
-		progress.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(progress)
-
-	sprint_list.add_child(row)
+	sprint_list.add_child(btn)
 
 func _show_task_details(task_data: Dictionary) -> void:
 	current_task = task_data
@@ -374,7 +355,6 @@ func _on_task_created_from_modal(task_data: Dictionary) -> void:
 		"description": task_description,
 		"status": "In Progress",
 		"remaining_seconds": TASK_BUILD_DELAY_SECONDS,
-		"total_seconds": TASK_BUILD_DELAY_SECONDS,
 		"pending_publish": true,
 		"pending_data": task_data.duplicate(true)
 	}
@@ -450,13 +430,9 @@ func _apply_task_to_site_sections(task_data: Dictionary) -> void:
 			var section_task_for_object: Dictionary = Global.site_sections[section_index]
 			var elements: Array = section_task_for_object.get("elements", [])
 			var object_type: String = String(task_data.get("object_type", ""))
-			var element_payload: Dictionary = _build_site_element_payload(task_data)
-			if not element_payload.is_empty():
-				elements.append(element_payload)
-			else:
-				var mapped_element: String = _map_object_type_to_element(object_type)
-				if not mapped_element.is_empty():
-					elements.append(mapped_element)
+			var mapped_element: String = _map_object_type_to_element(object_type)
+			if not mapped_element.is_empty():
+				elements.append(mapped_element)
 			section_task_for_object["elements"] = elements
 			Global.site_sections[section_index] = section_task_for_object
 		_:
@@ -483,29 +459,6 @@ func _map_object_type_to_element(object_type: String) -> String:
 			return "product_card"
 		_:
 			return ""
-
-func _build_site_element_payload(task_data: Dictionary) -> Dictionary:
-	var object_type: String = String(task_data.get("object_type", "")).strip_edges()
-	if object_type.is_empty():
-		return {}
-
-	var content: String = String(task_data.get("content", "")).strip_edges()
-	if content.is_empty():
-		if object_type == "button":
-			content = "Купить"
-		elif object_type == "text":
-			content = "Текст"
-
-	var style_dict: Dictionary = {}
-	var style_variant: Variant = task_data.get("style", {})
-	if style_variant is Dictionary:
-		style_dict = (style_variant as Dictionary).duplicate(true)
-
-	return {
-		"type": object_type,
-		"content": content,
-		"style": style_dict
-	}
 
 func _regenerate_site_files() -> void:
 	if not Global:

@@ -16,8 +16,7 @@ const SECTION_HEIGHTS: Array[String] = ["50%", "75%", "100%"]
 const ALIGN_OPTIONS: Array[String] = ["left", "center", "right"]
 
 const OBJECT_TYPES: Array[String] = ["text", "button", "image", "card"]
-const DEFAULT_ASSIGNEE_OPTIONS: Array[String] = ["Alex", "Mila", "Nikita", "Unassigned"]
-const EMPLOYEES_FILE_PATH: String = "res://data/employees.json"
+const ASSIGNEE_OPTIONS: Array[String] = ["Alex", "Mila", "Nikita", "Unassigned"]
 const TEXT_CONTENT_PRESETS: Array[String] = [
 	"Hello",
 	"Welcome",
@@ -97,7 +96,6 @@ var _fields_container: VBoxContainer
 var _dynamic_controls: Dictionary = {}
 var _is_rebuilding_ui: bool = false
 var _id_counter: int = 0
-var _assignee_options: Array[String] = []
 
 func _ready() -> void:
 	title_label.text = "Создать задачу"
@@ -109,7 +107,6 @@ func _ready() -> void:
 	_hide_legacy_controls()
 	_create_dynamic_fields_container()
 	_bootstrap_site_structure()
-	_load_assignees_from_file()
 	_connect_signals()
 	reset_form()
 
@@ -186,46 +183,6 @@ func _bootstrap_site_structure() -> void:
 		if from_global is Dictionary:
 			site_structure = _sanitize_site_structure(from_global)
 
-func _load_assignees_from_file() -> void:
-	_assignee_options.clear()
-
-	if FileAccess.file_exists(EMPLOYEES_FILE_PATH):
-		var raw_json: String = FileAccess.get_file_as_string(EMPLOYEES_FILE_PATH)
-		var parsed: Variant = JSON.parse_string(raw_json)
-		if parsed is Array:
-			for employee_variant: Variant in parsed:
-				if employee_variant is Dictionary:
-					var employee: Dictionary = employee_variant
-					var employee_name: String = String(employee.get("name", "")).strip_edges()
-					if employee_name.is_empty():
-						continue
-					if not _assignee_options.has(employee_name):
-						_assignee_options.append(employee_name)
-
-	if _assignee_options.is_empty():
-		_assignee_options = DEFAULT_ASSIGNEE_OPTIONS.duplicate()
-
-func _has_assignee_capacity(assignee_name: String) -> bool:
-	if assignee_name.is_empty() or assignee_name == "Unassigned":
-		return true
-
-	var active_tasks_for_assignee: int = 0
-	if Global and _object_has_property(Global, "sprint_tasks"):
-		var sprint_tasks_variant: Variant = Global.get("sprint_tasks")
-		if sprint_tasks_variant is Array:
-			for task_variant: Variant in sprint_tasks_variant:
-				if task_variant is not Dictionary:
-					continue
-				var task: Dictionary = task_variant
-				if String(task.get("assignee", "")) != assignee_name:
-					continue
-				var status: String = String(task.get("status", "Open"))
-				if status == "Done":
-					continue
-				active_tasks_for_assignee += 1
-
-	return active_tasks_for_assignee < 2
-
 func _sanitize_site_structure(input_data: Dictionary) -> Dictionary:
 	var result: Dictionary = {"sections": []}
 	var sections_variant: Variant = input_data.get("sections", [])
@@ -300,7 +257,7 @@ func _build_create_section_fields(previous_state: Dictionary) -> void:
 	_add_option_field(
 		"assignee",
 		"Assignee",
-		_assignee_options,
+		ASSIGNEE_OPTIONS,
 		String(previous_state.get("assignee", "Unassigned"))
 	)
 	_add_option_field(
@@ -328,7 +285,7 @@ func _build_edit_section_fields(previous_state: Dictionary) -> void:
 	_add_option_field(
 		"assignee",
 		"Assignee",
-		_assignee_options,
+		ASSIGNEE_OPTIONS,
 		String(previous_state.get("assignee", "Unassigned"))
 	)
 
@@ -357,7 +314,7 @@ func _build_create_object_fields(previous_state: Dictionary) -> void:
 	_add_option_field(
 		"assignee",
 		"Assignee",
-		_assignee_options,
+		ASSIGNEE_OPTIONS,
 		String(previous_state.get("assignee", "Unassigned"))
 	)
 
@@ -374,7 +331,7 @@ func _build_edit_object_fields(previous_state: Dictionary) -> void:
 	_add_option_field(
 		"assignee",
 		"Assignee",
-		_assignee_options,
+		ASSIGNEE_OPTIONS,
 		String(previous_state.get("assignee", "Unassigned"))
 	)
 
@@ -400,9 +357,10 @@ func _build_edit_object_fields(previous_state: Dictionary) -> void:
 func _build_object_specific_fields(state: Dictionary, object_type: String) -> void:
 	match object_type:
 		"text":
-			_add_line_edit_field(
+			_add_option_field(
 				"content",
-				"Text",
+				"Content",
+				TEXT_CONTENT_PRESETS,
 				String(state.get("content", TEXT_CONTENT_PRESETS[0]))
 			)
 			_add_option_field(
@@ -531,60 +489,14 @@ func _add_option_field(key: String, label_text: String, values: Array[String], p
 	if values.is_empty():
 		return option
 
-	var selected_index: int = -1
-	var first_enabled_index: int = -1
-
+	var selected_index: int = 0
 	for i: int in values.size():
-		var item_value: String = values[i]
-		option.add_item(item_value)
-
-		var is_disabled: bool = false
-		if key == "assignee":
-			is_disabled = not _has_assignee_capacity(item_value)
-			option.set_item_disabled(i, is_disabled)
-
-		if not is_disabled and first_enabled_index == -1:
-			first_enabled_index = i
-
-		if not preferred_value.is_empty() and item_value == preferred_value and not is_disabled:
+		option.add_item(values[i])
+		if not preferred_value.is_empty() and values[i] == preferred_value:
 			selected_index = i
 
-	if selected_index == -1:
-		selected_index = first_enabled_index
-
-	if selected_index >= 0:
-		option.select(selected_index)
-	else:
-		option.select(0)
-		option.disabled = true
-
+	option.select(selected_index)
 	return option
-
-func _add_line_edit_field(key: String, label_text: String, default_text: String = "") -> LineEdit:
-	var row := HBoxContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	var field_label := Label.new()
-	field_label.text = label_text
-	field_label.custom_minimum_size = Vector2(120, 0)
-	field_label.add_theme_color_override("font_color", Color.WHITE)
-
-	var input := LineEdit.new()
-	input.text = default_text
-	input.placeholder_text = "Введите текст..."
-	input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	input.custom_minimum_size = Vector2(0, 34)
-	input.add_theme_color_override("font_color", Color.WHITE)
-	input.add_theme_color_override("caret_color", Color.WHITE)
-	input.add_theme_stylebox_override("normal", _make_input_style())
-	input.add_theme_stylebox_override("focus", _make_input_style(Color(0.28, 0.55, 0.95, 1.0)))
-	input.text_changed.connect(func(_new_text: String) -> void: _update_create_button_state())
-
-	row.add_child(field_label)
-	row.add_child(input)
-	_fields_container.add_child(row)
-	_dynamic_controls[key] = input
-	return input
 
 func _add_readonly_info_field(key: String, label_text: String, value: String) -> Label:
 	var row := HBoxContainer.new()
@@ -644,8 +556,6 @@ func _capture_form_state() -> Dictionary:
 			else:
 				if opt.selected >= 0:
 					state[key] = opt.get_item_text(opt.selected)
-		elif control is LineEdit:
-			state[key] = (control as LineEdit).text
 
 	return state
 
@@ -682,11 +592,7 @@ func _on_dynamic_option_changed(_index: int, key: String) -> void:
 
 func _on_create_pressed() -> void:
 	if not _is_form_valid():
-		var assignee_name: String = _get_selected_value("assignee")
-		if not assignee_name.is_empty() and not _has_assignee_capacity(assignee_name):
-			push_warning("Нельзя назначить больше двух активных задач на сотрудника: %s" % assignee_name)
-		else:
-			push_warning("Task cannot be created: missing or invalid selection.")
+		push_warning("Task cannot be created: missing or invalid selection.")
 		return
 
 	var task_data: Dictionary = _build_task_data()
@@ -834,10 +740,6 @@ func _is_form_valid() -> bool:
 	if action.is_empty():
 		return false
 
-	var assignee_name: String = _get_selected_value("assignee")
-	if assignee_name.is_empty() or not _has_assignee_capacity(assignee_name):
-		return false
-
 	match action:
 		"create_section":
 			return _has_valid_value("assignee") and _has_valid_value("bg_color") and _has_valid_value("height") and _has_valid_value("align")
@@ -880,19 +782,17 @@ func _get_selected_value(key: String) -> String:
 		return ""
 
 	var control: Variant = _dynamic_controls[key]
-	if control is OptionButton:
-		var option: OptionButton = control
-		if option.selected < 0:
-			return ""
+	if control is not OptionButton:
+		return ""
 
-		if key == "section_id" or key == "object_id":
-			return String(option.get_item_metadata(option.selected))
+	var option: OptionButton = control
+	if option.selected < 0:
+		return ""
 
-		return option.get_item_text(option.selected)
-	elif control is LineEdit:
-		return (control as LineEdit).text.strip_edges()
+	if key == "section_id" or key == "object_id":
+		return String(option.get_item_metadata(option.selected))
 
-	return ""
+	return option.get_item_text(option.selected)
 
 func _generate_task_id() -> int:
 	_id_counter += 1
@@ -1038,24 +938,6 @@ func _style_option_button(option: OptionButton) -> void:
 	option.add_theme_stylebox_override("normal", _make_button_style(Color(0.17, 0.19, 0.23, 1.0), 8))
 	option.add_theme_stylebox_override("hover", _make_button_style(Color(0.21, 0.24, 0.29, 1.0), 8))
 	option.add_theme_stylebox_override("pressed", _make_button_style(Color(0.14, 0.16, 0.20, 1.0), 8))
-
-func _make_input_style(border_color: Color = Color(0.21, 0.25, 0.32, 1.0)) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.14, 0.16, 0.20, 1.0)
-	style.border_color = border_color
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
-	style.content_margin_left = 10
-	style.content_margin_right = 10
-	style.content_margin_top = 7
-	style.content_margin_bottom = 7
-	return style
 
 func _make_button_style(bg_color: Color, corner_radius: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

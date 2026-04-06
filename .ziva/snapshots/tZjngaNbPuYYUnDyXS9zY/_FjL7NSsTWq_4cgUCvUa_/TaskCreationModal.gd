@@ -531,60 +531,14 @@ func _add_option_field(key: String, label_text: String, values: Array[String], p
 	if values.is_empty():
 		return option
 
-	var selected_index: int = -1
-	var first_enabled_index: int = -1
-
+	var selected_index: int = 0
 	for i: int in values.size():
-		var item_value: String = values[i]
-		option.add_item(item_value)
-
-		var is_disabled: bool = false
-		if key == "assignee":
-			is_disabled = not _has_assignee_capacity(item_value)
-			option.set_item_disabled(i, is_disabled)
-
-		if not is_disabled and first_enabled_index == -1:
-			first_enabled_index = i
-
-		if not preferred_value.is_empty() and item_value == preferred_value and not is_disabled:
+		option.add_item(values[i])
+		if not preferred_value.is_empty() and values[i] == preferred_value:
 			selected_index = i
 
-	if selected_index == -1:
-		selected_index = first_enabled_index
-
-	if selected_index >= 0:
-		option.select(selected_index)
-	else:
-		option.select(0)
-		option.disabled = true
-
+	option.select(selected_index)
 	return option
-
-func _add_line_edit_field(key: String, label_text: String, default_text: String = "") -> LineEdit:
-	var row := HBoxContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	var field_label := Label.new()
-	field_label.text = label_text
-	field_label.custom_minimum_size = Vector2(120, 0)
-	field_label.add_theme_color_override("font_color", Color.WHITE)
-
-	var input := LineEdit.new()
-	input.text = default_text
-	input.placeholder_text = "Введите текст..."
-	input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	input.custom_minimum_size = Vector2(0, 34)
-	input.add_theme_color_override("font_color", Color.WHITE)
-	input.add_theme_color_override("caret_color", Color.WHITE)
-	input.add_theme_stylebox_override("normal", _make_input_style())
-	input.add_theme_stylebox_override("focus", _make_input_style(Color(0.28, 0.55, 0.95, 1.0)))
-	input.text_changed.connect(func(_new_text: String) -> void: _update_create_button_state())
-
-	row.add_child(field_label)
-	row.add_child(input)
-	_fields_container.add_child(row)
-	_dynamic_controls[key] = input
-	return input
 
 func _add_readonly_info_field(key: String, label_text: String, value: String) -> Label:
 	var row := HBoxContainer.new()
@@ -644,8 +598,6 @@ func _capture_form_state() -> Dictionary:
 			else:
 				if opt.selected >= 0:
 					state[key] = opt.get_item_text(opt.selected)
-		elif control is LineEdit:
-			state[key] = (control as LineEdit).text
 
 	return state
 
@@ -880,19 +832,17 @@ func _get_selected_value(key: String) -> String:
 		return ""
 
 	var control: Variant = _dynamic_controls[key]
-	if control is OptionButton:
-		var option: OptionButton = control
-		if option.selected < 0:
-			return ""
+	if control is not OptionButton:
+		return ""
 
-		if key == "section_id" or key == "object_id":
-			return String(option.get_item_metadata(option.selected))
+	var option: OptionButton = control
+	if option.selected < 0:
+		return ""
 
-		return option.get_item_text(option.selected)
-	elif control is LineEdit:
-		return (control as LineEdit).text.strip_edges()
+	if key == "section_id" or key == "object_id":
+		return String(option.get_item_metadata(option.selected))
 
-	return ""
+	return option.get_item_text(option.selected)
 
 func _generate_task_id() -> int:
 	_id_counter += 1
@@ -1038,24 +988,6 @@ func _style_option_button(option: OptionButton) -> void:
 	option.add_theme_stylebox_override("normal", _make_button_style(Color(0.17, 0.19, 0.23, 1.0), 8))
 	option.add_theme_stylebox_override("hover", _make_button_style(Color(0.21, 0.24, 0.29, 1.0), 8))
 	option.add_theme_stylebox_override("pressed", _make_button_style(Color(0.14, 0.16, 0.20, 1.0), 8))
-
-func _make_input_style(border_color: Color = Color(0.21, 0.25, 0.32, 1.0)) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.14, 0.16, 0.20, 1.0)
-	style.border_color = border_color
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
-	style.content_margin_left = 10
-	style.content_margin_right = 10
-	style.content_margin_top = 7
-	style.content_margin_bottom = 7
-	return style
 
 func _make_button_style(bg_color: Color, corner_radius: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

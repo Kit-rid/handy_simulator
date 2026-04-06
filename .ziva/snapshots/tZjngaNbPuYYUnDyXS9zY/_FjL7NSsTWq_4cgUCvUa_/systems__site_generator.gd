@@ -200,8 +200,8 @@ func _render_section_template(template: String, section_data: Dictionary) -> Str
 	rendered = rendered.replace("{{LAYOUT}}", layout)
 	rendered = rendered.replace("{{SECTION_CLASS}}", "%s %s" % [section_type, layout])
 	rendered = rendered.replace("{{SECTION_STYLE}}", _section_style_to_inline_css(section_data))
-	rendered = rendered.replace("{{TITLE}}", "")
-	rendered = rendered.replace("{{BUTTON_TEXT}}", "")
+	rendered = rendered.replace("{{TITLE}}", "%s section" % section_type.capitalize())
+	rendered = rendered.replace("{{BUTTON_TEXT}}", "Learn more")
 	rendered = rendered.replace("{{CONTENT}}", _build_content_markup(section_data))
 
 	return rendered
@@ -214,39 +214,25 @@ func _build_content_markup(section_data: Dictionary) -> String:
 		elements = elements_variant
 
 	for element_variant: Variant in elements:
-		var element_type: String = ""
-		var element_content: String = ""
-
-		if element_variant is Dictionary:
-			var element_data: Dictionary = element_variant
-			element_type = String(element_data.get("type", "")).strip_edges()
-			element_content = String(element_data.get("content", "")).strip_edges()
-		else:
-			element_type = String(element_variant).strip_edges()
-
-		match element_type:
+		var element: String = String(element_variant)
+		match element:
 			"title":
-				if element_content.is_empty():
-					element_content = "Title"
-				parts.append("<h2>%s</h2>" % _escape_html(element_content))
+				parts.append("<h2>Generated Title</h2>")
 			"text":
-				if element_content.is_empty():
-					element_content = "Текст"
-				parts.append("<p>%s</p>" % _escape_html(element_content))
+				parts.append("<p>Generated paragraph from task elements.</p>")
 			"button":
-				if element_content.is_empty():
-					element_content = "Купить"
-				parts.append("<button>%s</button>" % _escape_html(element_content))
+				parts.append("<button>Купить</button>")
 			"image":
-				if element_content.is_empty():
-					element_content = "https://via.placeholder.com/640x280"
-				parts.append("<img src=\"%s\" alt=\"Generated image\">" % _escape_html(element_content))
-			"card", "product_card":
+				parts.append("<img src=\"https://via.placeholder.com/640x280\" alt=\"Generated image\">")
+			"product_card":
 				parts.append(_build_catalog_cards())
 			"price":
 				parts.append("<p class=\"price\">$99</p>")
 			_:
-				pass
+				parts.append("<span class=\"element\">%s</span>" % element)
+
+	if parts.is_empty():
+		parts.append("<p>Empty section (no elements specified).</p>")
 
 	return "\n".join(parts)
 
@@ -256,23 +242,20 @@ func _build_catalog_cards() -> String:
 	<article class="card">
 		<h3>Product A</h3>
 		<p class="price">$29</p>
-		<button>Купить</button>
+		<button>Buy</button>
 	</article>
 	<article class="card">
 		<h3>Product B</h3>
 		<p class="price">$49</p>
-		<button>Купить</button>
+		<button>Buy</button>
 	</article>
 	<article class="card">
 		<h3>Product C</h3>
 		<p class="price">$79</p>
-		<button>Купить</button>
+		<button>Buy</button>
 	</article>
 </div>
 """
-
-func _escape_html(value: String) -> String:
-	return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
 
 func _section_style_to_inline_css(section_data: Dictionary) -> String:
 	var style_variant: Variant = section_data.get("style", {})
@@ -330,6 +313,7 @@ func _fallback_section_template() -> String:
 	return """
 <section class="section {{SECTION_CLASS}}" style="{{SECTION_STYLE}}">
 	<div class="container">
+		<h2>{{TITLE}}</h2>
 		{{CONTENT}}
 	</div>
 </section>
