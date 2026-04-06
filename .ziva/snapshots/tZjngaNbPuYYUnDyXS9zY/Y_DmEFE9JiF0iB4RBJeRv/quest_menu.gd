@@ -23,31 +23,12 @@ var _labels_by_id: Dictionary = {}
 
 var _refresh_button: Button
 var _timer: Timer
-var _is_activated: bool = false
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(360, 190)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-
+	
 	_build_ui()
-
-	if Global:
-		Global.boss_quests_accepted.connect(_on_boss_quests_accepted)
-		if Global.boss_quests_unlocked:
-			_activate_quests()
-		else:
-			visible = false
-	else:
-		_activate_quests()
-
-func _on_boss_quests_accepted() -> void:
-	_activate_quests()
-
-func _activate_quests() -> void:
-	if _is_activated:
-		return
-	_is_activated = true
-	visible = true
 	_init_random_quests()
 	_start_auto_check_timer()
 	_update_quests_state()

@@ -18,9 +18,6 @@ const QUICK_REPLIES: Array[String] = [
 	"Нет"
 ]
 
-const BOSS_CHAT_NAME: String = "Босс"
-const BOSS_QUESTS_MESSAGE: String = "Задача босса:\n1) Черная секция с текстом и кнопкой\n2) Белая секция с кнопкой Купить\n3) Две сущности: текст и кнопка Купить\nОтветь \"Ок\", если берешь в работу."
-
 var is_dragging: bool = false
 var drag_offset: Vector2 = Vector2.ZERO
 var original_size: Vector2 = Vector2(900, 650)
@@ -56,6 +53,9 @@ var chats: Dictionary = {
 		"Кто берёт задачу по лендингу?"
 	],
 	"Босс": [
+		"Нужен статус по спринту к вечеру.",
+		"Покажите демо последней версии.",
+		"Какие риски по срокам?"
 	],
 	"Старший аналитик Влад": [
 		"Добавил комментарии по требованиям.",
@@ -76,7 +76,6 @@ func _ready() -> void:
 	if Global:
 		Global.register_window(self)
 
-	_inject_boss_quests_message()
 	_setup_theme()
 	_setup_input_modes()
 	_setup_quick_replies()
@@ -213,7 +212,7 @@ func _load_chat(chat_name: String) -> void:
 
 	var chat_messages: Array = chats.get(chat_name, [])
 	for msg_variant: Variant in chat_messages:
-		_add_message_label("Он", String(msg_variant))
+		_add_message_label("Собеседник", String(msg_variant))
 
 	call_deferred("_scroll_messages_to_bottom")
 
@@ -243,7 +242,6 @@ func _on_send_message() -> void:
 	chats[current_chat] = messages
 
 	_add_message_label("Вы", text)
-	_try_accept_boss_quests(text)
 	message_input.text = ""
 	call_deferred("_scroll_messages_to_bottom")
 
@@ -262,37 +260,7 @@ func _on_send_quick_reply() -> void:
 	chats[current_chat] = messages
 
 	_add_message_label("Вы", selected_text)
-	_try_accept_boss_quests(selected_text)
 	call_deferred("_scroll_messages_to_bottom")
-
-func _inject_boss_quests_message() -> void:
-	if not chats.has(BOSS_CHAT_NAME):
-		return
-
-	var boss_messages: Array = chats.get(BOSS_CHAT_NAME, [])
-	for msg_variant: Variant in boss_messages:
-		if String(msg_variant).contains("Задания босса"):
-			return
-
-	boss_messages.append(BOSS_QUESTS_MESSAGE)
-	chats[BOSS_CHAT_NAME] = boss_messages
-
-func _try_accept_boss_quests(sent_text: String) -> void:
-	if current_chat != BOSS_CHAT_NAME:
-		return
-	if not Global:
-		return
-	if Global.boss_quests_unlocked:
-		return
-
-	if sent_text.strip_edges().to_lower() != "ок":
-		return
-
-	Global.accept_boss_quests()
-	var messages: Array = chats.get(current_chat, [])
-	messages.append("Принято. Окно заданий разблокировано.")
-	chats[current_chat] = messages
-	_add_message_label("Босс", "Принято. Окно заданий разблокировано.")
 
 func _on_max_button() -> void:
 	if is_maximized:

@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://ba5v8s2qorg8y"]
+
+[ext_resource type="Script" uid="uid://epivgadkkjom" path="res://start_menu.gd" id="1_ufv5y"]
+[ext_resource type="Shader" uid="uid://b4jv8a1g58fe0" path="res://ui/menu_background.gdshader" id="2_0d5ky"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7htnq"]
+shader = ExtResource("2_0d5ky")
+shader_parameter/color_a = Color(0.03, 0.06, 0.12, 1)
+shader_parameter/color_b = Color(0.08, 0.17, 0.32, 1)
+shader_parameter/glow_color = Color(0.24, 0.58, 1, 1)
+shader_parameter/speed = 0.45
+shader_parameter/noise_strength = 0.1
+shader_parameter/glow_strength = 0.34
+
+[node name="StartMenu" type="Control" unique_id=1696858254]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_ufv5y")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1653561601]
+material = SubResource("ShaderMaterial_7htnq")
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=538036114]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 450.0
+offset_bottom = 315.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer" unique_id=2124231804]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel" unique_id=456329555]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CenterContainer/Panel/VBox" unique_id=1174214869]
+layout_mode = 2
+
+[node name="Subtitle" type="Label" parent="CenterContainer/Panel/VBox" unique_id=1622027131]
+layout_mode = 2
+
+[node name="StartButton" type="Button" parent="CenterContainer/Panel/VBox" unique_id=2089638886]
+layout_mode = 2
+
+[node name="ExitButton" type="Button" parent="CenterContainer/Panel/VBox" unique_id=1398647060]
+layout_mode = 2
+
+[node name="FooterHint" type="Label" parent="." unique_id=1178075396]
+layout_mode = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1.0
+offset_bottom = 23.0

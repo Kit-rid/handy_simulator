@@ -44,12 +44,6 @@ func register_window(window: Control) -> void:
 func unregister_window(window: Control) -> void:
 	window_closed.emit(window)
 
-func accept_boss_quests() -> void:
-	if boss_quests_unlocked:
-		return
-	boss_quests_unlocked = true
-	boss_quests_accepted.emit()
-
 func _reset_generated_site_files() -> void:
 	var generator := SiteGenerator.new()
 	var clean_html: String = generator.generate_html([])
