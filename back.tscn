@@ -5,4 +5,4 @@
 [node name="ColorRect" type="ColorRect" parent="." unique_id=520342925]
 offset_right = 1151.0
 offset_bottom = 649.0
-color = Color(0.47702208, 0.703125, 0.703125, 1)
+color = Color(0.66561043, 0.79153395, 1, 1)

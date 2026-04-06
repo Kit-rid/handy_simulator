@@ -4,7 +4,6 @@
 [ext_resource type="PackedScene" uid="uid://ei5oha0x4wr8" path="res://icons.tscn" id="2_cm0pq"]
 [ext_resource type="PackedScene" uid="uid://c74b8y4dmjrta" path="res://taskbar.tscn" id="3_fos0i"]
 [ext_resource type="Script" uid="uid://bh36bm2uj32nn" path="res://open_site_button.gd" id="4_cm0pq"]
-[ext_resource type="Script" uid="uid://ndvwxg27lrp5" path="res://quest_menu.gd" id="5_fos0i"]
 
 [node name="Node2D" type="Node2D" unique_id=2119343778]
 
@@ -29,13 +28,3 @@ offset_top = 10.0
 offset_right = 1130.0
 offset_bottom = 54.0
 script = ExtResource("4_cm0pq")
-
-[node name="QuestMenu" type="PanelContainer" parent="WindowsLayer" unique_id=1688179286]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -380.0
-offset_top = 60.0
-offset_right = -20.0
-offset_bottom = 270.0
-script = ExtResource("5_fos0i")

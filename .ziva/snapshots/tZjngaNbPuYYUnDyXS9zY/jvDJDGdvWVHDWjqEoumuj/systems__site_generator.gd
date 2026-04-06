@@ -221,7 +221,7 @@ func _build_content_markup(section_data: Dictionary) -> String:
 			"text":
 				parts.append("<p>Generated paragraph from task elements.</p>")
 			"button":
-				parts.append("<button>Купить</button>")
+				parts.append("<button>Click</button>")
 			"image":
 				parts.append("<img src=\"https://via.placeholder.com/640x280\" alt=\"Generated image\">")
 			"product_card":

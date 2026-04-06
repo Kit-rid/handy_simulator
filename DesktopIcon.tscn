@@ -1,23 +1,24 @@
-[gd_scene load_steps=3 format=3 uid="uid://bg458iwsy4rr1"]
+[gd_scene format=3 uid="uid://bg458iwsy4rr1"]
 
-[ext_resource type="Texture2D" uid="uid://ctm6ncybh0uxt" path="res://icon.svg" id="1_u1wl0"]
+[ext_resource type="Texture2D" uid="uid://xpxusri2rg0t" path="res://browser.svg" id="1_rcbfn"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_u1wl0"]
 font_size = 28
 
-[node name="Control" type="Control"]
+[node name="Control" type="Control" unique_id=1645718024]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 129.0
 offset_bottom = 132.0
 
-[node name="TextureButton" type="TextureButton" parent="."]
+[node name="TextureButton" type="TextureButton" parent="." unique_id=1700590090]
 layout_mode = 0
-offset_right = 128.0
-offset_bottom = 128.0
-texture_normal = ExtResource("1_u1wl0")
+offset_right = 800.0
+offset_bottom = 800.0
+scale = Vector2(0.16, 0.16)
+texture_normal = ExtResource("1_rcbfn")
 
-[node name="Label" type="Label" parent="TextureButton"]
+[node name="Label" type="Label" parent="TextureButton" unique_id=1430231152]
 layout_mode = 0
 offset_left = 43.0
 offset_top = 123.0

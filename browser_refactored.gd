@@ -5,7 +5,7 @@ const WINDOW_BORDER_WIDTH: int = 1
 const TITLEBAR_HEIGHT: float = 46.0
 const WINDOW_PADDING: float = 18.0
 
-const PANEL_BG_COLOR: Color = Color(0.13, 0.15, 0.18, 1.0)
+const PANEL_BG_COLOR: Color = Color(0.19, 0.21, 0.26, 1.0)
 const CONTENT_BG_COLOR: Color = Color(0.11, 0.12, 0.15, 1.0)
 const CARD_BG_COLOR: Color = Color(0.16, 0.18, 0.22, 1.0)
 const CARD_HOVER_BG_COLOR: Color = Color(0.19, 0.21, 0.26, 1.0)

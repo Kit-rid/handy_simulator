@@ -2,7 +2,6 @@
 
 [ext_resource type="PackedScene" uid="uid://bg458iwsy4rr1" path="res://DesktopIcon.tscn" id="2_nkpgu"]
 [ext_resource type="Script" uid="uid://djvnjujene62d" path="res://desktop_icon_new.gd" id="2_o81lv"]
-[ext_resource type="Texture2D" uid="uid://ssxjj4cm04hf" path="res://messenger.svg" id="3_1k1fo"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_5lq33"]
 font_size = 26
@@ -33,7 +32,6 @@ offset_bottom = 129.0
 script = ExtResource("2_o81lv")
 app_name = ""
 app_scene_path = "res://Messenger.tscn"
-icon_texture = ExtResource("3_1k1fo")
 
 [node name="Label" type="Label" parent="Icon/MessengerIcon" unique_id=784578903]
 layout_mode = 0

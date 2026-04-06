@@ -807,15 +807,14 @@ func _generate_section_id() -> String:
 func _style_to_css_classes(style: Dictionary) -> Array[String]:
 	var classes: Array[String] = []
 	for key_variant: Variant in style.keys():
-		var key: String = str(key_variant)
+		var key: String = String(key_variant)
 		if not CSS_MAP.has(key):
 			continue
 
-		var raw_value: Variant = style.get(key_variant, style.get(key, ""))
-		var value: String = str(raw_value)
+		var value: String = String(style[key])
 		var map_for_key: Dictionary = CSS_MAP[key]
 		if map_for_key.has(value):
-			classes.append(str(map_for_key[value]))
+			classes.append(String(map_for_key[value]))
 
 	return classes
 
