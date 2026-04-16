@@ -92,6 +92,7 @@ func _on_task_tick_timeout() -> void:
 		return
 
 	var changed: bool = false
+	var should_regenerate_site: bool = false
 	for i: int in Global.sprint_tasks.size():
 		var task: Dictionary = Global.sprint_tasks[i]
 		if not bool(task.get("pending_publish", false)):
@@ -109,11 +110,14 @@ func _on_task_tick_timeout() -> void:
 			var pending_payload: Variant = task.get("pending_data", {})
 			if pending_payload is Dictionary:
 				_apply_task_to_site_sections(pending_payload)
-				_regenerate_site_files()
+				should_regenerate_site = true
 			task.erase("pending_data")
 			changed = true
 
 		Global.sprint_tasks[i] = task
+
+	if should_regenerate_site:
+		_regenerate_site_files()
 
 	if changed and home_view.visible:
 		_refresh_sprint_list()
@@ -489,12 +493,12 @@ func _build_site_element_payload(task_data: Dictionary) -> Dictionary:
 	if object_type.is_empty():
 		return {}
 
-	var content: String = String(task_data.get("content", "")).strip_edges()
-	if content.is_empty():
+	var element_content: String = String(task_data.get("content", "")).strip_edges()
+	if element_content.is_empty():
 		if object_type == "button":
-			content = "Купить"
+			element_content = "Купить"
 		elif object_type == "text":
-			content = "Текст"
+			element_content = "Текст"
 
 	var style_dict: Dictionary = {}
 	var style_variant: Variant = task_data.get("style", {})
@@ -503,7 +507,7 @@ func _build_site_element_payload(task_data: Dictionary) -> Dictionary:
 
 	return {
 		"type": object_type,
-		"content": content,
+		"content": element_content,
 		"style": style_dict
 	}
 

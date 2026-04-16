@@ -1,7 +1,6 @@
 extends Control
 class_name JiraWindow
 
-# Переменные для перетаскивания
 var is_dragging: bool = false
 var drag_offset: Vector2 = Vector2.ZERO
 var original_size: Vector2 = Vector2(800, 600)

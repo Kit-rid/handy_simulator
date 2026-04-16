@@ -113,7 +113,6 @@ func _ready() -> void:
 	_connect_signals()
 	reset_form()
 
-# Public API for future integrations.
 func set_site_structure(structure: Dictionary) -> void:
 	site_structure = _sanitize_site_structure(structure)
 	update_form_by_action()
@@ -170,18 +169,14 @@ func _create_dynamic_fields_container() -> void:
 	$VBoxContainer.move_child(_fields_container, create_button.get_index())
 
 func _bootstrap_site_structure() -> void:
-	# По умолчанию сайт пустой, согласно требованиям.
 	site_structure = _sanitize_site_structure({"sections": []})
 
-	# Основной источник правды: Global.site_sections (задачи конструктора).
-	if Global and _object_has_property(Global, "site_sections"):
+	if Global:
 		var sections_variant: Variant = Global.get("site_sections")
 		if sections_variant is Array:
 			site_structure = _sanitize_site_structure(_site_structure_from_global_sections(sections_variant as Array))
 			return
 
-	# Мягкая обратная совместимость: если в Global уже есть site_structure, используем его.
-	if Global and _object_has_property(Global, "site_structure"):
 		var from_global: Variant = Global.get("site_structure")
 		if from_global is Dictionary:
 			site_structure = _sanitize_site_structure(from_global)
@@ -209,22 +204,31 @@ func _has_assignee_capacity(assignee_name: String) -> bool:
 	if assignee_name.is_empty() or assignee_name == "Unassigned":
 		return true
 
-	var active_tasks_for_assignee: int = 0
-	if Global and _object_has_property(Global, "sprint_tasks"):
-		var sprint_tasks_variant: Variant = Global.get("sprint_tasks")
-		if sprint_tasks_variant is Array:
-			for task_variant: Variant in sprint_tasks_variant:
-				if task_variant is not Dictionary:
-					continue
-				var task: Dictionary = task_variant
-				if String(task.get("assignee", "")) != assignee_name:
-					continue
-				var status: String = String(task.get("status", "Open"))
-				if status == "Done":
-					continue
-				active_tasks_for_assignee += 1
+	var active_by_assignee: Dictionary = _build_active_tasks_by_assignee()
+	return int(active_by_assignee.get(assignee_name, 0)) < 2
 
-	return active_tasks_for_assignee < 2
+func _build_active_tasks_by_assignee() -> Dictionary:
+	var result: Dictionary = {}
+	if not Global:
+		return result
+
+	var sprint_tasks_variant: Variant = Global.get("sprint_tasks")
+	if sprint_tasks_variant is not Array:
+		return result
+
+	for task_variant: Variant in sprint_tasks_variant:
+		if task_variant is not Dictionary:
+			continue
+		var task: Dictionary = task_variant
+		var status: String = String(task.get("status", "Open"))
+		if status == "Done":
+			continue
+		var assignee_name: String = String(task.get("assignee", "")).strip_edges()
+		if assignee_name.is_empty() or assignee_name == "Unassigned":
+			continue
+		result[assignee_name] = int(result.get(assignee_name, 0)) + 1
+
+	return result
 
 func _sanitize_site_structure(input_data: Dictionary) -> Dictionary:
 	var result: Dictionary = {"sections": []}
@@ -465,7 +469,6 @@ func _build_object_specific_fields(state: Dictionary, object_type: String) -> vo
 				String(state.get("align", "center"))
 			)
 		"card":
-			# Карточка фиксирована: 15% от родителя.
 			_add_readonly_info_field("card_info", "Card", "width: 15%")
 			_add_option_field(
 				"align",
@@ -533,6 +536,9 @@ func _add_option_field(key: String, label_text: String, values: Array[String], p
 
 	var selected_index: int = -1
 	var first_enabled_index: int = -1
+	var active_by_assignee: Dictionary = {}
+	if key == "assignee":
+		active_by_assignee = _build_active_tasks_by_assignee()
 
 	for i: int in values.size():
 		var item_value: String = values[i]
@@ -540,7 +546,7 @@ func _add_option_field(key: String, label_text: String, values: Array[String], p
 
 		var is_disabled: bool = false
 		if key == "assignee":
-			is_disabled = not _has_assignee_capacity(item_value)
+			is_disabled = item_value != "Unassigned" and int(active_by_assignee.get(item_value, 0)) >= 2
 			option.set_item_disabled(i, is_disabled)
 
 		if not is_disabled and first_enabled_index == -1:
@@ -719,7 +725,6 @@ func _build_task_data() -> Dictionary:
 				"section_id": new_section_id,
 				"style": section_style,
 				"css_classes": _style_to_css_classes(section_style),
-				# Поля для мягкой совместимости со старым обработчиком в браузере.
 				"section": new_section_id,
 				"layout": "section"
 			}
@@ -985,14 +990,6 @@ func _list_images_in_assets() -> Array[String]:
 
 	images.sort()
 	return images
-
-func _object_has_property(obj: Object, property_name: String) -> bool:
-	for prop_variant: Variant in obj.get_property_list():
-		if prop_variant is Dictionary:
-			var prop: Dictionary = prop_variant
-			if String(prop.get("name", "")) == property_name:
-				return true
-	return false
 
 func _apply_modal_style() -> void:
 	var style := StyleBoxFlat.new()

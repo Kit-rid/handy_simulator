@@ -25,9 +25,16 @@ var _refresh_button: Button
 var _timer: Timer
 var _is_activated: bool = false
 
+var _section_regex: RegEx = RegEx.new()
+var _buy_button_regex: RegEx = RegEx.new()
+var _button_regex: RegEx = RegEx.new()
+var _text_regex: RegEx = RegEx.new()
+var _last_html_hash: int = 0
+
 func _ready() -> void:
 	custom_minimum_size = Vector2(360, 190)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_compile_regexes()
 
 	_build_ui()
 
@@ -42,6 +49,12 @@ func _ready() -> void:
 
 func _on_boss_quests_accepted() -> void:
 	_activate_quests()
+
+func _compile_regexes() -> void:
+	_section_regex.compile("(?is)(<section\\b[^>]*>)(.*?)</section>")
+	_buy_button_regex.compile("(?is)<button\\b[^>]*>\\s*купить\\s*</button>")
+	_button_regex.compile("(?is)<button\\b[^>]*>.*?</button>")
+	_text_regex.compile("(?is)<(p|h[1-6])\\b[^>]*>\\s*.*?\\s*</(p|h[1-6])>")
 
 func _activate_quests() -> void:
 	if _is_activated:
@@ -130,6 +143,11 @@ func _start_auto_check_timer() -> void:
 
 func _update_quests_state() -> void:
 	var html: String = _read_generated_html()
+	var html_hash: int = html.hash()
+	if html_hash == _last_html_hash and not html.is_empty():
+		return
+	_last_html_hash = html_hash
+
 	for i: int in _active_quests.size():
 		var quest: Dictionary = _active_quests[i]
 		var quest_id: String = String(quest.get("id", ""))
@@ -185,12 +203,7 @@ func _is_quest_completed(quest_id: String, html: String) -> bool:
 
 func _extract_sections(html: String) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
-	var regex := RegEx.new()
-	var err: int = regex.compile("(?is)(<section\\b[^>]*>)(.*?)</section>")
-	if err != OK:
-		return result
-
-	for match: RegExMatch in regex.search_all(html):
+	for match: RegExMatch in _section_regex.search_all(html):
 		result.append({
 			"open_tag": match.get_string(1),
 			"body": match.get_string(2)
@@ -207,19 +220,10 @@ func _is_white_section(open_tag: String) -> bool:
 	return tag.contains("#ffffff") or tag.contains("bg-white") or tag.contains("background-color: white")
 
 func _has_buy_button(input_html: String) -> bool:
-	var regex := RegEx.new()
-	if regex.compile("(?is)<button\\b[^>]*>\\s*купить\\s*</button>") != OK:
-		return false
-	return regex.search(input_html) != null
+	return _buy_button_regex.search(input_html) != null
 
 func _has_button_entity(input_html: String) -> bool:
-	var regex := RegEx.new()
-	if regex.compile("(?is)<button\\b[^>]*>.*?</button>") != OK:
-		return false
-	return regex.search(input_html) != null
+	return _button_regex.search(input_html) != null
 
 func _has_text_entity(input_html: String) -> bool:
-	var regex := RegEx.new()
-	if regex.compile("(?is)<(p|h[1-6])\\b[^>]*>\\s*.*?\\s*</(p|h[1-6])>") != OK:
-		return false
-	return regex.search(input_html) != null
+	return _text_regex.search(input_html) != null

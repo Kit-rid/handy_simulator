@@ -3,6 +3,11 @@ extends Node
 signal window_opened(window_node: Control)
 signal window_closed(window_node: Control)
 signal boss_quests_accepted
+func register_window(window: Control) -> void:
+	window_opened.emit(window)
+
+func unregister_window(window: Control) -> void:
+	window_closed.emit(window)
 
 var boss_quests_unlocked: bool = false
 
@@ -38,11 +43,7 @@ var site_sections: Array[Dictionary] = []
 func _ready() -> void:
 	_reset_generated_site_files()
 
-func register_window(window: Control) -> void:
-	window_opened.emit(window)
 
-func unregister_window(window: Control) -> void:
-	window_closed.emit(window)
 
 func accept_boss_quests() -> void:
 	if boss_quests_unlocked:

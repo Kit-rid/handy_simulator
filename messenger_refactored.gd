@@ -290,7 +290,7 @@ func _try_accept_boss_quests(sent_text: String) -> void:
 
 	Global.accept_boss_quests()
 	var messages: Array = chats.get(current_chat, [])
-	messages.append("Принято. Окно заданий разблокировано.")
+	messages.append("Принято. Работай.")
 	chats[current_chat] = messages
 	_add_message_label("Босс", "Принято. Окно заданий разблокировано.")
 
