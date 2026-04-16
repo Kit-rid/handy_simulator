@@ -203,11 +203,32 @@ func _load_assignees_from_file() -> void:
 func _has_assignee_capacity(assignee_name: String) -> bool:
 	if assignee_name.is_empty() or assignee_name == "Unassigned":
 		return true
+
+	var active_by_assignee: Dictionary = _build_active_tasks_by_assignee()
+	return int(active_by_assignee.get(assignee_name, 0)) < 2
+
+func _build_active_tasks_by_assignee() -> Dictionary:
+	var result: Dictionary = {}
 	if not Global:
-		return true
+		return result
 
-	return int(Global.assignment_counts.get(assignee_name, 0)) < 2
+	var sprint_tasks_variant: Variant = Global.get("sprint_tasks")
+	if sprint_tasks_variant is not Array:
+		return result
 
+	for task_variant: Variant in sprint_tasks_variant:
+		if task_variant is not Dictionary:
+			continue
+		var task: Dictionary = task_variant
+		var status: String = String(task.get("status", "Open"))
+		if status == "Done":
+			continue
+		var assignee_name: String = String(task.get("assignee", "")).strip_edges()
+		if assignee_name.is_empty() or assignee_name == "Unassigned":
+			continue
+		result[assignee_name] = int(result.get(assignee_name, 0)) + 1
+
+	return result
 
 func _sanitize_site_structure(input_data: Dictionary) -> Dictionary:
 	var result: Dictionary = {"sections": []}
@@ -515,9 +536,9 @@ func _add_option_field(key: String, label_text: String, values: Array[String], p
 
 	var selected_index: int = -1
 	var first_enabled_index: int = -1
-	var assignee_counts: Dictionary = {}
-	if key == "assignee" and Global:
-		assignee_counts = Global.assignment_counts
+	var active_by_assignee: Dictionary = {}
+	if key == "assignee":
+		active_by_assignee = _build_active_tasks_by_assignee()
 
 	for i: int in values.size():
 		var item_value: String = values[i]
@@ -525,7 +546,7 @@ func _add_option_field(key: String, label_text: String, values: Array[String], p
 
 		var is_disabled: bool = false
 		if key == "assignee":
-			is_disabled = item_value != "Unassigned" and int(assignee_counts.get(item_value, 0)) >= 2
+			is_disabled = item_value != "Unassigned" and int(active_by_assignee.get(item_value, 0)) >= 2
 			option.set_item_disabled(i, is_disabled)
 
 		if not is_disabled and first_enabled_index == -1:

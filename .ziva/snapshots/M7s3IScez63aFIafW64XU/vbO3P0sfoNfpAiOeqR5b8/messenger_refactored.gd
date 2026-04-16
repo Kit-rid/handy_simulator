@@ -82,9 +82,6 @@ func _ready() -> void:
 	_resize_children_to_window()
 	_ensure_window_border()
 	move_to_front()
-	
-	if Global:
-		Global.site_generated.connect(_on_site_generated)
 
 func _exit_tree() -> void:
 	if Global:
@@ -293,22 +290,6 @@ func _try_accept_boss_quests(sent_text: String) -> void:
 	messages.append(BOSS_SITE_TEXT)
 	chats[current_chat] = messages
 	_add_message_label("Босс", BOSS_SITE_TEXT)
-
-func _on_site_generated() -> void:
-	if current_chat != BOSS_CHAT_NAME:
-		return
-	
-	var messages: Array = chats.get(current_chat, [])
-	
-	# Проверяем, есть ли уже сообщение о завершении
-	for msg_variant: Variant in messages:
-		if String(msg_variant).contains("Молодец"):
-			return
-	
-	# Добавляем сообщение о завершении
-	messages.append("Молодец! Отлично справился с заданиями!")
-	chats[current_chat] = messages
-	_add_message_label("Босс", "Молодец! Отлично справился с заданиями!")
 
 func _on_max_button() -> void:
 	if is_maximized:

@@ -19,8 +19,7 @@ const QUICK_REPLIES: Array[String] = [
 ]
 
 const BOSS_CHAT_NAME: String = "Босс"
-const BOSS_SITE_TEXT: String = "Добро пожаловать на наш сайт, свяжитесь с нами по данным номерам или пишите на почту. Ном. +79253334442, gmail@gmail.com"
-const BOSS_QUESTS_MESSAGE: String = "Задание босса:\n1) Создать blue секцию\n2) Добавить в blue секцию текст, который я пришлю после ответа \"Ок\"\n3) Добавить кнопку \"Купить\"\nОтветь \"Ок\", если берешь в работу."
+const BOSS_QUESTS_MESSAGE: String = "Задача босса:\n1) Черная секция с текстом и кнопкой\n2) Белая секция с кнопкой Купить\n3) Две сущности: текст и кнопка Купить\nОтветь \"Ок\", если берешь в работу."
 
 var is_dragging: bool = false
 var drag_offset: Vector2 = Vector2.ZERO
@@ -52,17 +51,21 @@ var current_chat: String = ""
 
 var chats: Dictionary = {
 	"Общий с командой": [
-		"Всем привет!",
-		"Проверьте новые задачи",
+		"Всем привет! Сегодня синк в 11:00.",
+		"Проверьте новые задачи в Jira.",
 		"Кто берёт задачу по лендингу?"
 	],
 	"Босс": [
 	],
 	"Старший аналитик Влад": [
 		"Добавил комментарии по требованиям.",
+		"Уточни, какой сценарий приоритетный.",
+		"Нужна проверка гипотезы до пятницы."
 	],
 	"Проектный чат": [
-		"Обновил roadmap на этот месяц."
+		"Обновил roadmap на этот месяц.",
+		"Давайте согласуем блок hero.",
+		"Есть предложения по структуре каталога?"
 	]
 }
 
@@ -82,9 +85,6 @@ func _ready() -> void:
 	_resize_children_to_window()
 	_ensure_window_border()
 	move_to_front()
-	
-	if Global:
-		Global.site_generated.connect(_on_site_generated)
 
 func _exit_tree() -> void:
 	if Global:
@@ -271,7 +271,7 @@ func _inject_boss_quests_message() -> void:
 
 	var boss_messages: Array = chats.get(BOSS_CHAT_NAME, [])
 	for msg_variant: Variant in boss_messages:
-		if String(msg_variant).contains("Задание босса"):
+		if String(msg_variant).contains("Задания босса"):
 			return
 
 	boss_messages.append(BOSS_QUESTS_MESSAGE)
@@ -290,25 +290,9 @@ func _try_accept_boss_quests(sent_text: String) -> void:
 
 	Global.accept_boss_quests()
 	var messages: Array = chats.get(current_chat, [])
-	messages.append(BOSS_SITE_TEXT)
+	messages.append("Принято. Работай.")
 	chats[current_chat] = messages
-	_add_message_label("Босс", BOSS_SITE_TEXT)
-
-func _on_site_generated() -> void:
-	if current_chat != BOSS_CHAT_NAME:
-		return
-	
-	var messages: Array = chats.get(current_chat, [])
-	
-	# Проверяем, есть ли уже сообщение о завершении
-	for msg_variant: Variant in messages:
-		if String(msg_variant).contains("Молодец"):
-			return
-	
-	# Добавляем сообщение о завершении
-	messages.append("Молодец! Отлично справился с заданиями!")
-	chats[current_chat] = messages
-	_add_message_label("Босс", "Молодец! Отлично справился с заданиями!")
+	_add_message_label("Босс", "Принято. Окно заданий разблокировано.")
 
 func _on_max_button() -> void:
 	if is_maximized:

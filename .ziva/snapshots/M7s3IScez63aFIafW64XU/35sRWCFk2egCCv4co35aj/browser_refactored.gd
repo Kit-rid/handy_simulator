@@ -299,7 +299,7 @@ func _add_task_button(task_data: Dictionary) -> void:
 	row.add_child(btn)
 
 	if is_pending:
-		var total_seconds: int = max(1, int(task_data.get("total_seconds", SECTION_BUILD_DELAY_SECONDS)))
+		var total_seconds: int = max(1, int(task_data.get("total_seconds", TASK_BUILD_DELAY_SECONDS)))
 		var clamped_remaining: int = clampi(remaining_seconds, 0, total_seconds)
 		var progress := ProgressBar.new()
 		progress.min_value = 0
@@ -361,7 +361,6 @@ func _on_task_created_from_modal(task_data: Dictionary) -> void:
 		"edit_section": "Low"
 	}
 
-	var build_delay_seconds: int = _get_task_build_delay_seconds(task_type)
 	var task_title: String = "%s: %s" % [_humanize_task_type(task_type), section_name.capitalize()]
 	var task_priority: String = String(priority_by_type.get(task_type, "Medium"))
 	var task_description: String = "Тип: %s\nСекция: %s\nLayout: %s\nИсполнитель: %s\nПубликация через: %dс" % [
@@ -369,7 +368,7 @@ func _on_task_created_from_modal(task_data: Dictionary) -> void:
 		section_name,
 		layout_name,
 		assignee_name,
-		build_delay_seconds
+		TASK_BUILD_DELAY_SECONDS
 	]
 
 	var task: Dictionary = {
@@ -379,29 +378,19 @@ func _on_task_created_from_modal(task_data: Dictionary) -> void:
 		"assignee": assignee_name,
 		"description": task_description,
 		"status": "In Progress",
-		"remaining_seconds": build_delay_seconds,
-		"total_seconds": build_delay_seconds,
+		"remaining_seconds": TASK_BUILD_DELAY_SECONDS,
+		"total_seconds": TASK_BUILD_DELAY_SECONDS,
 		"pending_publish": true,
 		"pending_data": task_data.duplicate(true)
 	}
 
 	if Global:
 		Global.sprint_tasks.append(task)
-		Global._recalculate_assignment_counts()
 
 	go_to_page("Home")
 
 func _humanize_task_type(task_type: String) -> String:
 	return task_type.replace("_", " ").capitalize()
-
-func _get_task_build_delay_seconds(task_type: String) -> int:
-	match task_type:
-		"create_object", "edit_object":
-			return OBJECT_BUILD_DELAY_SECONDS
-		"create_section", "edit_section":
-			return SECTION_BUILD_DELAY_SECONDS
-		_:
-			return SECTION_BUILD_DELAY_SECONDS
 
 func _has_assignee_capacity(assignee_name: String) -> bool:
 	if not Global:
@@ -409,7 +398,19 @@ func _has_assignee_capacity(assignee_name: String) -> bool:
 	if assignee_name.is_empty() or assignee_name == "Unassigned":
 		return true
 
-	return int(Global.assignment_counts.get(assignee_name, 0)) < 2
+	var active_tasks: int = 0
+	for task_variant: Variant in Global.sprint_tasks:
+		if task_variant is not Dictionary:
+			continue
+		var task: Dictionary = task_variant
+		if String(task.get("assignee", "")) != assignee_name:
+			continue
+		var status: String = String(task.get("status", "Open"))
+		if status == "Done":
+			continue
+		active_tasks += 1
+
+	return active_tasks < 2
 
 func _apply_task_to_site_sections(task_data: Dictionary) -> void:
 	if not Global:
@@ -516,7 +517,6 @@ func _regenerate_site_files() -> void:
 		return
 	var generator := SiteGenerator.new()
 	generator.generate_from_tasks(Global.site_sections)
-	Global.notify_site_generated()
 
 func _on_submit_task() -> void:
 	var title: String = title_input.text.strip_edges()
@@ -546,7 +546,6 @@ func _on_submit_task() -> void:
 
 	if Global:
 		Global.sprint_tasks.append(task)
-		Global._recalculate_assignment_counts()
 
 	title_input.text = ""
 	assignee_input.text = ""

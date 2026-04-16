@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://b0svms6kg48m4"]
+
+[ext_resource type="Script" uid="uid://ce1csim3u7tpb" path="res://game_complete_window.gd" id="1_6083u"]
+
+[node name="GameCompleteWindow" type="Control" unique_id=568511100]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_6083u")

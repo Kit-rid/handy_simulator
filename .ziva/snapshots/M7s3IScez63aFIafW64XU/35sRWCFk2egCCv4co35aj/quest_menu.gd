@@ -6,20 +6,17 @@ const CHECK_INTERVAL_SEC: float = 1.5
 const QUEST_DEFINITIONS: Array[Dictionary] = [
 	{
 		"id": "q1",
-		"title": "1) Создать blue секцию"
+		"title": "1) Черная секция с текстом и кнопкой"
 	},
 	{
 		"id": "q2",
-		"title": "2) Добавить в blue секцию текст от босса"
+		"title": "2) Белая секция с кнопкой Купить"
 	},
 	{
 		"id": "q3",
-		"title": "3) Добавить любую кнопку"
+		"title": "3) Две сущности: текст и кнопка Купить"
 	}
 ]
-
-const REQUIRED_BOSS_TEXT: String = "Добро пожаловать на наш сайт, свяжитесь с нами по данным номерам или пишите на почту. Ном. +79253334442, gmail@gmail.com"
-
 
 var _active_quests: Array[Dictionary] = []
 var _labels_by_id: Dictionary = {}
@@ -29,9 +26,10 @@ var _timer: Timer
 var _is_activated: bool = false
 
 var _section_regex: RegEx = RegEx.new()
-var _any_button_regex: RegEx = RegEx.new()
+var _buy_button_regex: RegEx = RegEx.new()
+var _button_regex: RegEx = RegEx.new()
+var _text_regex: RegEx = RegEx.new()
 var _last_html_hash: int = 0
-var _completion_window_shown: bool = false
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(360, 190)
@@ -42,7 +40,6 @@ func _ready() -> void:
 
 	if Global:
 		Global.boss_quests_accepted.connect(_on_boss_quests_accepted)
-		Global.site_generated.connect(_on_site_generated)
 		if Global.boss_quests_unlocked:
 			_activate_quests()
 		else:
@@ -53,14 +50,11 @@ func _ready() -> void:
 func _on_boss_quests_accepted() -> void:
 	_activate_quests()
 
-func _on_site_generated() -> void:
-	if not _is_activated:
-		return
-	_update_quests_state(true)
-
 func _compile_regexes() -> void:
 	_section_regex.compile("(?is)(<section\\b[^>]*>)(.*?)</section>")
-	_any_button_regex.compile("(?is)<button\\b[^>]*>.*?</button>")
+	_buy_button_regex.compile("(?is)<button\\b[^>]*>\\s*купить\\s*</button>")
+	_button_regex.compile("(?is)<button\\b[^>]*>.*?</button>")
+	_text_regex.compile("(?is)<(p|h[1-6])\\b[^>]*>\\s*.*?\\s*</(p|h[1-6])>")
 
 func _activate_quests() -> void:
 	if _is_activated:
@@ -119,11 +113,12 @@ func _build_ui() -> void:
 	_refresh_button.text = "Проверить выполнение"
 	_refresh_button.custom_minimum_size = Vector2(0, 34)
 	_refresh_button.add_theme_color_override("font_color", Color.WHITE)
-	_refresh_button.pressed.connect(_on_manual_check_pressed)
+	_refresh_button.pressed.connect(_update_quests_state)
 	root.add_child(_refresh_button)
 
 func _init_random_quests() -> void:
 	_active_quests = QUEST_DEFINITIONS.duplicate(true)
+	_active_quests.shuffle()
 
 	var quests_box: VBoxContainer = get_node("Root/QuestsBox")
 	for child: Node in quests_box.get_children():
@@ -146,32 +141,20 @@ func _start_auto_check_timer() -> void:
 	_timer.timeout.connect(_update_quests_state)
 	add_child(_timer)
 
-func _on_manual_check_pressed() -> void:
-	_update_quests_state(true)
-
-func _update_quests_state(force: bool = false) -> void:
+func _update_quests_state() -> void:
 	var html: String = _read_generated_html()
 	var html_hash: int = html.hash()
-	if not force and html_hash == _last_html_hash and not html.is_empty():
+	if html_hash == _last_html_hash and not html.is_empty():
 		return
 	_last_html_hash = html_hash
 
-	var can_check_next: bool = true
-	var all_completed: bool = true
 	for i: int in _active_quests.size():
 		var quest: Dictionary = _active_quests[i]
 		var quest_id: String = String(quest.get("id", ""))
-		var completed: bool = false
-		if can_check_next:
-			completed = _is_quest_completed(quest_id, html)
+		var completed: bool = _is_quest_completed(quest_id, html)
 		quest["completed"] = completed
 		_active_quests[i] = quest
 		_update_quest_label(quest)
-		can_check_next = can_check_next and completed
-		all_completed = all_completed and completed
-
-	if all_completed:
-		_show_completion()
 
 func _update_quest_label(quest: Dictionary) -> void:
 	var quest_id: String = String(quest.get("id", ""))
@@ -194,18 +177,27 @@ func _is_quest_completed(quest_id: String, html: String) -> bool:
 	if html.is_empty():
 		return false
 
-	var blue_sections: Array[String] = _extract_blue_section_bodies(html)
+	var sections: Array[Dictionary] = _extract_sections(html)
 
 	match quest_id:
 		"q1":
-			return not blue_sections.is_empty()
+			for section: Dictionary in sections:
+				var open_tag: String = String(section.get("open_tag", ""))
+				var body: String = String(section.get("body", ""))
+				if _is_black_section(open_tag) and _has_text_entity(body) and _has_button_entity(body):
+					return true
+			return false
 		"q2":
-			for body: String in blue_sections:
-				if _has_required_boss_text(body):
+			for section: Dictionary in sections:
+				var open_tag: String = String(section.get("open_tag", ""))
+				var body: String = String(section.get("body", ""))
+				if _is_white_section(open_tag) and _has_buy_button(body):
 					return true
 			return false
 		"q3":
-			return _has_any_button(html)
+			var has_text: bool = _has_text_entity(html)
+			var has_buy: bool = _has_buy_button(html)
+			return has_text and has_buy
 		_:
 			return false
 
@@ -219,35 +211,19 @@ func _extract_sections(html: String) -> Array[Dictionary]:
 
 	return result
 
-func _extract_blue_section_bodies(html: String) -> Array[String]:
-	var result: Array[String] = []
-	for section: Dictionary in _extract_sections(html):
-		var open_tag: String = String(section.get("open_tag", ""))
-		if _is_blue_section(open_tag):
-			result.append(String(section.get("body", "")))
-	return result
-
-func _is_blue_section(open_tag: String) -> bool:
+func _is_black_section(open_tag: String) -> bool:
 	var tag: String = open_tag.to_lower()
-	return tag.contains("#dbeafe") or tag.contains("bg-blue") or tag.contains("background-color: blue")
+	return tag.contains("#111827") or tag.contains("bg-dark") or tag.contains("background-color: black")
 
-func _has_any_button(input_html: String) -> bool:
-	return _any_button_regex.search(input_html) != null
+func _is_white_section(open_tag: String) -> bool:
+	var tag: String = open_tag.to_lower()
+	return tag.contains("#ffffff") or tag.contains("bg-white") or tag.contains("background-color: white")
 
-func _has_required_boss_text(input_html: String) -> bool:
-	var normalized_html: String = _normalize_text(input_html)
-	var normalized_required: String = _normalize_text(REQUIRED_BOSS_TEXT)
-	return normalized_html.contains(normalized_required)
+func _has_buy_button(input_html: String) -> bool:
+	return _buy_button_regex.search(input_html) != null
 
-func _show_completion() -> void:
-	if _completion_window_shown:
-		return
-	_completion_window_shown = true
-	
-	# Скрываем окно с заданиями
-	visible = false
+func _has_button_entity(input_html: String) -> bool:
+	return _button_regex.search(input_html) != null
 
-func _normalize_text(input_text: String) -> String:
-	var lowered: String = input_text.to_lower()
-	var single_line: String = lowered.replace("\n", " ").replace("\r", " ").replace("\t", " ")
-	return " ".join(single_line.split(" ", false))
+func _has_text_entity(input_html: String) -> bool:
+	return _text_regex.search(input_html) != null

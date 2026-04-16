@@ -19,7 +19,7 @@ const QUEST_DEFINITIONS: Array[Dictionary] = [
 ]
 
 const REQUIRED_BOSS_TEXT: String = "Добро пожаловать на наш сайт, свяжитесь с нами по данным номерам или пишите на почту. Ном. +79253334442, gmail@gmail.com"
-
+const GAME_COMPLETE_WINDOW_SCENE: PackedScene = preload("res://GameCompleteWindow.tscn")
 
 var _active_quests: Array[Dictionary] = []
 var _labels_by_id: Dictionary = {}
@@ -146,9 +146,6 @@ func _start_auto_check_timer() -> void:
 	_timer.timeout.connect(_update_quests_state)
 	add_child(_timer)
 
-func _on_manual_check_pressed() -> void:
-	_update_quests_state(true)
-
 func _update_quests_state(force: bool = false) -> void:
 	var html: String = _read_generated_html()
 	var html_hash: int = html.hash()
@@ -171,7 +168,7 @@ func _update_quests_state(force: bool = false) -> void:
 		all_completed = all_completed and completed
 
 	if all_completed:
-		_show_completion()
+		_show_completion_window()
 
 func _update_quest_label(quest: Dictionary) -> void:
 	var quest_id: String = String(quest.get("id", ""))
@@ -239,13 +236,23 @@ func _has_required_boss_text(input_html: String) -> bool:
 	var normalized_required: String = _normalize_text(REQUIRED_BOSS_TEXT)
 	return normalized_html.contains(normalized_required)
 
-func _show_completion() -> void:
+func _show_completion_window() -> void:
 	if _completion_window_shown:
 		return
+
+	var current_scene: Node = get_tree().current_scene
+	if current_scene == null:
+		return
+
+	if current_scene.has_node("GameCompleteWindow"):
+		_completion_window_shown = true
+		return
+
+	var completion_window: Control = GAME_COMPLETE_WINDOW_SCENE.instantiate()
+	completion_window.name = "GameCompleteWindow"
+	current_scene.add_child(completion_window)
+	completion_window.move_to_front()
 	_completion_window_shown = true
-	
-	# Скрываем окно с заданиями
-	visible = false
 
 func _normalize_text(input_text: String) -> String:
 	var lowered: String = input_text.to_lower()

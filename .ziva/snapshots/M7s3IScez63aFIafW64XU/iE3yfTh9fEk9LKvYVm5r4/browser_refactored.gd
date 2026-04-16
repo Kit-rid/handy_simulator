@@ -387,7 +387,6 @@ func _on_task_created_from_modal(task_data: Dictionary) -> void:
 
 	if Global:
 		Global.sprint_tasks.append(task)
-		Global._recalculate_assignment_counts()
 
 	go_to_page("Home")
 
@@ -409,7 +408,19 @@ func _has_assignee_capacity(assignee_name: String) -> bool:
 	if assignee_name.is_empty() or assignee_name == "Unassigned":
 		return true
 
-	return int(Global.assignment_counts.get(assignee_name, 0)) < 2
+	var active_tasks: int = 0
+	for task_variant: Variant in Global.sprint_tasks:
+		if task_variant is not Dictionary:
+			continue
+		var task: Dictionary = task_variant
+		if String(task.get("assignee", "")) != assignee_name:
+			continue
+		var status: String = String(task.get("status", "Open"))
+		if status == "Done":
+			continue
+		active_tasks += 1
+
+	return active_tasks < 2
 
 func _apply_task_to_site_sections(task_data: Dictionary) -> void:
 	if not Global:
@@ -516,7 +527,6 @@ func _regenerate_site_files() -> void:
 		return
 	var generator := SiteGenerator.new()
 	generator.generate_from_tasks(Global.site_sections)
-	Global.notify_site_generated()
 
 func _on_submit_task() -> void:
 	var title: String = title_input.text.strip_edges()
@@ -546,7 +556,6 @@ func _on_submit_task() -> void:
 
 	if Global:
 		Global.sprint_tasks.append(task)
-		Global._recalculate_assignment_counts()
 
 	title_input.text = ""
 	assignee_input.text = ""

@@ -62,7 +62,6 @@ func restart_game_state() -> void:
 	boss_quests_unlocked = false
 	sprint_tasks = DEFAULT_SPRINT_TASKS.duplicate(true)
 	site_sections.clear()
-	_recalculate_assignment_counts()
 	_reset_generated_site_files()
 
 func _reset_generated_site_files() -> void:
@@ -71,20 +70,3 @@ func _reset_generated_site_files() -> void:
 	var clean_css: String = generator.generate_css([])
 	generator.save_site(clean_html, clean_css)
 	notify_site_generated()
-
-func _recalculate_assignment_counts() -> void:
-	assignment_counts.clear()
-	for task_variant: Variant in sprint_tasks:
-		if task_variant is not Dictionary:
-			continue
-		var task: Dictionary = task_variant
-		var assignee_value: Variant = task.get("assignee", "")
-		var assignee_name: String = ""
-		if assignee_value is Dictionary:
-			assignee_name = String((assignee_value as Dictionary).get("name", ""))
-		else:
-			assignee_name = String(assignee_value)
-		assignee_name = assignee_name.strip_edges()
-		if assignee_name.is_empty() or assignee_name == "Unassigned":
-			continue
-		assignment_counts[assignee_name] = assignment_counts.get(assignee_name, 0) + 1
